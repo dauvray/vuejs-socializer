@@ -35,7 +35,7 @@ export default {
         onPublishPost() {
             let formData = new FormData()
             formData.append('target', this.selected )
-            formData.append('content', this.postContent )
+            formData.append('postContent', this.postContent )
 
             // is in vuejs-estarter framework ?
             if(typeof this.$estarterSettings === 'undefined') {

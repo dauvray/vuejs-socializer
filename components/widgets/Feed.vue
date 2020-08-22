@@ -40,6 +40,10 @@ export default {
             type: Object,
             required: true
         },
+        feed: {
+            type: Object,
+            required: true
+        }
     },
     methods: {
         onSaveModalChanges() {
