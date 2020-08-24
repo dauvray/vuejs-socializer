@@ -1,6 +1,5 @@
 <template>
     <form @submit.prevent>
-
         <div class="form-group">
             <select id="target" class="form-control form-control-sm" v-model="selected">
                 <option disabled value="">Qui peut voir votre post ?</option>
@@ -47,7 +46,7 @@ export default {
                         alert(error);
                     });
             } else {
-                this.$emit('onPublishPost', formData)
+                this.$emit('saveModalChanges', formData)
             }
         }
     }

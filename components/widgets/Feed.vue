@@ -22,6 +22,19 @@
 
                         </template>
                     </modal-widget>
+                    <div class="feed-wrapper">
+                        <post-card v-for="(post, idx) in feed" :key="idx"
+                                   :post="post"
+                                   :logged="logged"
+                                   :canberated="canberated"
+                                   :canbeliked="canbeliked"
+                                   :canbereported="canbereported"
+                                   :commentable="commentable"
+                                   :postdislikeurl="postdislikeurl"
+                                   :postlikeurl="postlikeurl"
+                                   :postreporturl="postreporturl"
+                        ></post-card>
+                    </div>
                 </div>
             </div>
         </div>
@@ -33,7 +46,8 @@ export default {
     components: {
         ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
         GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
-        PostForm: () => import('vuejs-socializer/components/widgets/post/PostForm')
+        PostForm: () => import('vuejs-socializer/components/widgets/post/PostForm'),
+        PostCard: () => import('vuejs-socializer/components/widgets/post/PostCard')
     },
     props: {
         user: {
@@ -41,12 +55,36 @@ export default {
             required: true
         },
         feed: {
-            type: Object,
+            type: [Array, Object],
             required: true
-        }
+        },
+        logged: {
+            type: Boolean,
+            default: false
+        },
+        canbecommented: {
+            type: Boolean,
+            default: false
+        },
+        canberated: {
+            type: Boolean,
+            default: false
+        },
+        canbeliked: {
+            type: Boolean,
+            default: false
+        },
+        canbereported: {
+            type: Boolean,
+            default: false
+        },
+        commentable: Object,
+        postlikeurl: String,
+        postdislikeurl: String,
+        postreporturl: String,
     },
     methods: {
-        onSaveModalChanges() {
+        onSaveModalChanges(formData) {
 
         }
     }
