@@ -1,18 +1,29 @@
 <template>
-    <div class="card">
-        <div class="card-body">
+    <div class="card mt-3 post-wrapper">
+        <div class="card-body post">
             <div class="author">
                 <gravatar-widget :user="post.user" size="small"></gravatar-widget>
                 {{post.user.name}}
                 <date-helper :date="post.created_at" class="date pr-2" :format="'since'"/>
             </div>
-            <p>
+            <p class="card-text">
                 {{post.content}}
             </p>
-            <comment-form :commentable="post"
+            <tool-bar
+                :comment="post"
+                :logged="logged"
+                :canbeliked="canbeliked"
+                :canbereported="canbereported"
+                :postlikeurl="postlikeurl"
+                :postdislikeurl="postdislikeurl"
+                :postreporturl="postreporturl"
+                @response-comment="showForm"
+            ></tool-bar>
+            <comment-form v-if="formVisible"
+                          :commentable="post"
                           :logged="logged"
                           :canberated="canberated"
-                          @submitComment=""
+                          @submitComment="onSubmitComment"
             ></comment-form>
             <comment-list :comments="[]"
                           :logged="logged"
@@ -30,6 +41,8 @@
 </template>
 
 <script>
+import {EventBus} from "vuejs-eblogger/components/widgets/Comment/Comment";
+
 export default {
     name: "PostCard",
     components: {
@@ -37,6 +50,7 @@ export default {
         DateHelper: () => import('vuejs-eblogger/components/widgets/DateHelper'),
         CommentList: () => import('vuejs-eblogger/components/widgets/Comment/CommentList'),
         CommentForm: () => import('vuejs-eblogger/components/widgets/Comment/CommentForm'),
+        ToolBar: () => import('vuejs-eblogger/components/widgets/Comment/widgets/ToolBar')
     },
     props: {
         post: {
@@ -67,6 +81,23 @@ export default {
         postdislikeurl: String,
         postreporturl: String,
     },
+    data() {
+        return {
+            formVisible: false,
+        }
+    },
+    methods: {
+        toggleComments() {
+            this.isCommentsVisble = !this.isCommentsVisble
+        },
+        onSubmitComment(data) {
+            this.$emit('submitComment', data)
+        },
+        showForm() {
+            EventBus.$emit("close-comment-rect-btn", this);
+            this.formVisible = !this.formVisible
+        },
+    }
 }
 </script>
 

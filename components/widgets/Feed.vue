@@ -23,7 +23,7 @@
                         </template>
                     </modal-widget>
                     <div class="feed-wrapper">
-                        <post-card v-for="(post, idx) in feed" :key="idx"
+                        <post-card v-for="(post, idx) in feed.data" :key="idx"
                                    :post="post"
                                    :logged="logged"
                                    :canberated="canberated"
@@ -33,6 +33,7 @@
                                    :postdislikeurl="postdislikeurl"
                                    :postlikeurl="postlikeurl"
                                    :postreporturl="postreporturl"
+                                   @submitComment="onSubmitComment"
                         ></post-card>
                     </div>
                 </div>
@@ -86,6 +87,9 @@ export default {
     methods: {
         onSaveModalChanges(formData) {
 
+        },
+        onSubmitComment(data) {
+            console.log(data)
         }
     }
 }
