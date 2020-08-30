@@ -3,8 +3,7 @@
             <div class="card">
                 <div class="card-body">
                     <modal-widget target="changecover" class="d-flex justify-content-end"
-                                  btnclass="btn btn-light btn-lg btn-block"
-                                  @saveModalChanges="onSaveModalChanges">
+                                  btnclass="btn btn-light btn-lg btn-block">
                         <template #button>
                             <i class="fas fa-edit"></i> Commencer un post
                         </template>
@@ -12,29 +11,36 @@
                             Créer un post
                         </template>
                         <template #body>
-
                             <div class="author">
                                 <gravatar-widget :user="user" size="small"></gravatar-widget>
                                 {{user.name}}
                             </div>
-
-                            <post-form></post-form>
-
+                            <post-form ref="postForm"></post-form>
+                        </template>
+                        <template #footer>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                            <button type="button" class="btn btn-primary" @click="onPublishPost">Publier</button>
                         </template>
                     </modal-widget>
                     <div class="feed-wrapper">
                         <post-card v-for="(post, idx) in feed.data" :key="idx"
-                                   :post="post"
-                                   :logged="logged"
-                                   :canberated="canberated"
-                                   :canbeliked="canbeliked"
-                                   :canbereported="canbereported"
-                                   :commentable="commentable"
-                                   :postdislikeurl="postdislikeurl"
-                                   :postlikeurl="postlikeurl"
-                                   :postreporturl="postreporturl"
-                                   @submitComment="onSubmitComment"
+                           :post="post"
+                           :logged="logged"
+                           :canberated="canberated"
+                           :canbeliked="canbeliked"
+                           :canbereported="canbereported"
+                           :canbecommented="canbecommented"
+                           :postdislikeurl="postdislikeurl"
+                           :postlikeurl="postlikeurl"
+                           :postreporturl="postreporturl"
+                           :postcommenturl="postcommenturl"
+                           @submitComment="onSubmitComment"
                         ></post-card>
+                        <blog-pagination :items="feed.data"
+                             :links="feed.links"
+                             :meta="feed.meta"
+                             @loadPage="onLoadPosts"
+                        ></blog-pagination>
                     </div>
                 </div>
             </div>
@@ -48,7 +54,8 @@ export default {
         ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
         GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
         PostForm: () => import('vuejs-socializer/components/widgets/post/PostForm'),
-        PostCard: () => import('vuejs-socializer/components/widgets/post/PostCard')
+        PostCard: () => import('vuejs-socializer/components/widgets/post/PostCard'),
+        BlogPagination: () => import('vuejs-eblogger/components/widgets/Pagination'),
     },
     props: {
         user: {
@@ -79,17 +86,32 @@ export default {
             type: Boolean,
             default: false
         },
-        commentable: Object,
         postlikeurl: String,
         postdislikeurl: String,
         postreporturl: String,
+        postcommenturl: String
     },
     methods: {
-        onSaveModalChanges(formData) {
+        onPublishPost() {
+           let formData = this.$refs.postForm.getPostFormContent()
+            // is in vuejs-estarter framework ?
+            if(typeof this.$estarterSettings === 'undefined') {
+                axios.post('/publish-post', formData)
+                .then((response) => {
 
+                })
+                .catch((error) => {
+                    alert(error);
+                });
+            } else {
+               this.$emit('saveModalChanges', formData)
+            }
         },
         onSubmitComment(data) {
-            console.log(data)
+
+        },
+        onLoadPosts() {
+
         }
     }
 }
