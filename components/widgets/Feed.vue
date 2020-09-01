@@ -2,7 +2,7 @@
         <div id="feed">
             <div class="card">
                 <div class="card-body">
-                    <modal-widget target="changecover" class="d-flex justify-content-end"
+                    <modal-widget target="publishPost" class="d-flex justify-content-end"
                                   btnclass="btn btn-light btn-lg btn-block">
                         <template #button>
                             <i class="fas fa-edit"></i> Commencer un post
@@ -23,7 +23,8 @@
                         </template>
                     </modal-widget>
                     <div class="feed-wrapper">
-                        <post-card v-for="(post, idx) in feed.data" :key="idx"
+                        <post-card v-for="(post, idx) in items"
+                           :key="componentKey + idx"
                            :post="post"
                            :logged="logged"
                            :canberated="canberated"
@@ -91,20 +92,39 @@ export default {
         postreporturl: String,
         postcommenturl: String
     },
+    data() {
+      return {
+          posts: this.feed.data,
+          componentKey: 0
+      }
+    },
+    computed: {
+        items: function() {
+            return this.posts
+        }
+    },
+    watch: {
+        feed: function (newValue, oldValue) {
+            this.posts = newValue.data
+        }
+    },
     methods: {
         onPublishPost() {
            let formData = this.$refs.postForm.getPostFormContent()
+            $('#publishPost').modal('hide')
+
             // is in vuejs-estarter framework ?
             if(typeof this.$estarterSettings === 'undefined') {
                 axios.post('/publish-post', formData)
                 .then((response) => {
-
+                    this.componentKey += 100
+                    this.posts = response.data.data
                 })
                 .catch((error) => {
                     alert(error);
                 });
             } else {
-               this.$emit('saveModalChanges', formData)
+               this.$emit('publishPost', formData)
             }
         },
         onSubmitComment(data) {
