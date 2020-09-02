@@ -4,13 +4,27 @@
             <div class="author">
                 <gravatar-widget :user="post.author" size="small"></gravatar-widget>
                 {{post.author.name}}
-                <date-helper :date="post.created_at" class="date pr-2" :format="'since'"/>
+                <date-helper :date="post.created_at" class="date pr-2" :format="'since'" />
             </div>
             <p class="card-text">
                 {{post.content}}
             </p>
-            <comments-widget :commentable="post"
+            <tool-bar
+                :comment="post"
                 :logged="logged"
+                :formvisible="formvisible"
+                :canbeliked="canbeliked"
+                :canbereported="canbereported"
+                :postlikeurl="postlikeurl"
+                :postdislikeurl="postdislikeurl"
+                :postreporturl="postreporturl"
+                @response-comment="onShowForm"
+            ></tool-bar>
+            <comments-widget
+                :commentable="post"
+                :logged="logged"
+                :formvisible="formvisible"
+                :showInfos="false"
                 :canbecommented="canbecommented"
                 :canberated="canberated"
                 :canbeliked="canbeliked"
@@ -19,6 +33,7 @@
                 :postdislikeurl="postdislikeurl"
                 :postlikeurl="postlikeurl"
                 :postreporturl="postreporturl"
+                @submitComment="onSubmitComment"
             ></comments-widget>
         </div>
     </div>
@@ -32,6 +47,7 @@
         GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
         DateHelper: () => import('vuejs-eblogger/components/widgets/DateHelper'),
         CommentsWidget: () => import('vuejs-eblogger/components/widgets/Comment/Comments'),
+        ToolBar: () => import('vuejs-eblogger/components/widgets/Comment/widgets/ToolBar'),
     },
     props: {
         post: {
@@ -74,10 +90,10 @@
         },
         onSubmitComment(data) {
             this.$emit('submitComment', data)
+            this.formvisible = false
         },
-        showForm() {
-            this.eventBus.$emit("close-comment-rect-btn", this);
-            this.formVisible = !this.formVisible
+        onShowForm() {
+            this.formvisible = !this.formvisible
         },
     }
 }
