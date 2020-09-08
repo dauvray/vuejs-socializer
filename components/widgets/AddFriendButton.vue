@@ -22,18 +22,24 @@
                 required: true
             }
         },
+        data() {
+            return {
+                status: this.isfriend
+            }
+        },
         computed: {
             btnLabel() {
-                return this.isfriend ? 'Retirer' : 'Se connecter'
+                return this.status ? 'Retirer' : 'Se connecter'
             }
         },
         methods: {
             sendInvitation() {
                 axios({
-                    url: this.isfriend ? this.removeurl : this.invitationurl,
+                    url: this.status ? this.removeurl : this.invitationurl,
                     method: 'get',
                 }).then((response) => {
-                    this.eventBus.$emit("httpSuccess", response.data)
+                    this.eventBus.$emit("httpSuccess", response.data.notification)
+                    this.status = response.data.status
                 }).catch( (error) => {
                     this.eventBus.$emit("httpError", error)
                 })
