@@ -56,7 +56,7 @@ export default {
         GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
         PostForm: () => import('vuejs-socializer/components/widgets/post/PostForm'),
         PostCard: () => import('vuejs-socializer/components/widgets/post/PostCard'),
-        BlogPagination: () => import('vuejs-eblogger/components/widgets/Pagination'),
+        BlogPagination: () => import('vuejs-estarter/components/widgets/Pagination'),
     },
     props: {
         user: {

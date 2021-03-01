@@ -1,6 +1,6 @@
 <template>
-    <button type="button" class="btn btn-primary btn-sm" @click="sendInvitation">
-        <i class="fas fa-user-plus"></i> {{ btnLabel }}
+    <button type="button" :class="btnClass" @click="onSendAction">
+        <i :class="btnIcon"></i> {{ btnLabel }}
     </button>
 </template>
 
@@ -9,37 +9,96 @@
         name: "AddFriendBtn",
         inject: ["eventBus"],
         props: {
-            invitationurl: {
+            primaryurl: {
                 type: String,
                 required: true
             },
-            removeurl: {
+            secondaryurl: {
                 type: String,
-                required: true
+                required: false,
+                default: ''
             },
-            isfriend: {
+            intermediateurl: {
+                type: String,
+                required: false,
+                default: ''
+            },
+            // status principal : true / false
+            status: {
                 type: Boolean,
-                required: true
+                required: false,
+                default: false
+            },
+            // un status intermediaire peut etre utilisé
+            secondarystatus: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            options: {
+                type: Object,
+                required: false,
+                default: () => ({
+                    btnLabel: {
+                        primaryLabel: 'Ajouter',
+                        secondaryLabel: 'Retirer',
+                        intermediateLabel: 'Annuler invitation'
+                    },
+                    btnIcon: {
+                        primaryIcon: 'lar la-plus-square',
+                        secondaryIcon: 'las la-minus-circle',
+                        intermediateIcon: 'las la-minus-circle'
+                    },
+                    btnClass: {
+                        primaryClass: 'btn btn-primary btn-sm',
+                        secondaryClass: 'btn btn-primary btn-sm',
+                        intermediateClass: 'btn btn-primary btn-sm'
+                    }
+                })
             }
         },
         data() {
             return {
-                status: this.isfriend
+                localStatus: this.status,
+                localSecondaryStatus: this.secondarystatus
             }
         },
         computed: {
             btnLabel() {
-                return this.status ? 'Retirer' : 'Se connecter'
+                return this.localSecondaryStatus
+                    ? this.options.btnLabel.intermediateLabel
+                    : this.localStatus
+                        ? this.options.btnLabel.secondaryLabel
+                        : this.options.btnLabel.primaryLabel
+            },
+            btnIcon() {
+                return this.localSecondaryStatus
+                    ? this.options.btnIcon.intermediateIcon
+                    : this.localStatus
+                        ? this.options.btnIcon.secondaryIcon
+                        : this.options.btnIcon.primaryIcon
+            },
+            btnClass() {
+                return this.localSecondaryStatus
+                    ? this.options.btnClass.intermediateClass
+                    : this.localStatus
+                        ? this.options.btnClass.secondaryClass
+                        : this.options.btnClass.primaryClass
             }
         },
         methods: {
-            sendInvitation() {
+            onSendAction() {
                 axios({
-                    url: this.status ? this.removeurl : this.invitationurl,
+                    url: this.localSecondaryStatus
+                        ? this.intermediateurl
+                        : this.localStatus
+                            ? this.secondaryurl
+                            : this.primaryurl,
                     method: 'get',
                 }).then((response) => {
                     this.eventBus.$emit("httpSuccess", response.data.notification)
-                    this.status = response.data.status
+                    this.localSecondaryStatus = !this.localSecondaryStatus
+                    this.localStatus = response.data.status
                 }).catch( (error) => {
                     this.eventBus.$emit("httpError", error)
                 })
