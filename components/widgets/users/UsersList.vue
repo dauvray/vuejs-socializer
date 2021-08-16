@@ -1,51 +1,38 @@
 <template>
     <div>
-        <div v-for="(user, idx) in users" :key="idx">
-            <gravatar-widget :user="user" size="small"></gravatar-widget>
-            <a :href="`/profile/${convertToSlug(user.name)}`">{{ user.name }}</a>
-
-            <button v-if="user.sended_invitation" 
-                type="button"
-                class="btn btn-link"
-                @click="onAddFriend(user)"
-            >Annuler invitation</button>
-            <template v-else-if="user.received_invitation">
-                <a class="btn btn-link"
-                    :href="`/accept-friend-invitation/${user.id}`" 
-                >Accepter invitation</a>
-                <a class="btn btn-link"
-                    :href="`/deny-friend-invitation/${user.id}`" 
-                >Décliner invitation</a>
-            </template>
-            <button v-else
-                type="button"
-                class="btn btn-link"
-                @click="onAddFriend(user.id)"
-            >Inviter</button>
+        <div v-for="(user, idx) in users"
+        class="card mb-2"
+        :key="idx"
+        >
+            <div class="card-body p-2 d-flex align-items-center">
+                <div class="d-flex align-items-center flex-grow-1">
+                    <gravatar-status :user="user"></gravatar-status>
+                    <user-link :user="user"></user-link>
+                </div>
+                <users-btn :user="user"></users-btn>
+            </div>
         </div>
 
-        <pagination-widget 
+        <pagination-widget
             :items="users" 
             :links="links" 
             :meta="meta"
             @loadPage="onLoadPage"
         ></pagination-widget>
-
     </div>
 </template>
 
 <script>
 
-import {RestDataSourcesMixin} from 'vuejs-estarter/mixins/RestDataSourcesMixin'
+import {mapActions, mapGetters} from 'vuex'
 
 export default {
     name: 'UsersList',
-    mixins: [
-        RestDataSourcesMixin
-    ],
     components: {
         PaginationWidget: () => import('vuejs-estarter/components/widgets/Pagination'),
-        GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
+        GravatarStatus: () => import('../user/GravatarStatus'),
+        UserLink: () => import('../user/UserLink'),
+        UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn')
     },
     props: {
         type: {
@@ -55,60 +42,37 @@ export default {
         }
     },
     data() {
-        return {
-            users: [],
-            links: {},
-            meta: {},
-            urls: {
-                networksUsers: { 
-                    api : '/networks/users/list'
-                },
-                friendRequests: {
-                    api: '/my-community/list'
-                }
-            },
-            listKey: 0,
-        }
+        return {}
     },
     created() {
-        this.requestApi(this.urls[this.type].api)
-        .then(resp => {
-            this.processData(resp)
-        })
+        this['users/loadUsers'](this.type)
+    },
+    computed: {
+         ...mapGetters({
+             users: 'users/getUsers',
+             links: 'users/getLinks',
+             meta: 'users/getMeta',
+         }),
     },
     methods: {
+        ...mapActions([
+            'users/loadUsers',
+        ]),
+
+
+
         processData(resp) {
             this.users = resp.data
             this.links = resp.links
             this.meta = resp.meta
         },
-        convertToSlug(text) {
-            return text
-                .toLowerCase()
-                .replace(/ /g,'-')
-                .replace(/[^\w-]+/g,'')
-                ;
-        },
+
         onLoadPage(url) {
             this.requestApi(url)
             .then( resp => {
                 this.processData(resp)
             })
         },
-        onAddFriend(user) {
-            this.requestApi(
-                `/add-friend/${user.id}`, 
-                'get', 
-                null, 
-                {
-                    'msg': 'Invitation envoyée',
-                    'err': 'Erreur : Invitation impossible'
-                }
-            )
-            .then( resp => {
-
-            })
-        }
     }
 }
 </script>

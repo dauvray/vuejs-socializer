@@ -19,6 +19,7 @@
            @click.prevent="editProfil" href="#">
             <i class="las la-pencil-alt"></i>
         </a>
+        <users-btn v-else :user="item"></users-btn>
         <div class="flex-grow-1">
             <modal-widget
                 v-if="editable"
@@ -57,6 +58,7 @@
             GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
             ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
             CropperWidget: () => import('vuejs-estarter/components/widgets/CropperWidget'),
+            UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn')
         },
         props: {
             user: {

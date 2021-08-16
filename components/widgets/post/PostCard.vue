@@ -2,8 +2,8 @@
     <div class="card mt-3 post-wrapper">
         <div class="card-body post">
             <div class="author">
-                <gravatar-widget :user="post.author" size="small"></gravatar-widget>
-                {{post.author.name}}
+                <gravatar-status :user="post.author" size="small"></gravatar-status>
+                <user-link :user="post.author"></user-link>
                 <date-helper :date="post.created_at" class="date pr-2" :format="'since'" />
             </div>
             <p class="card-text">
@@ -44,7 +44,8 @@
     name: "PostCard",
     inject: ["eventBus"],
     components: {
-        GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
+        GravatarStatus: () => import('../user/GravatarStatus'),
+        UserLink: () => import('../user/UserLink'),
         DateHelper: () => import('vuejs-eblogger/components/widgets/DateHelper'),
         CommentsWidget: () => import('vuejs-eblogger/components/widgets/Comment/Comments'),
         ToolBar: () => import('vuejs-eblogger/components/widgets/Comment/widgets/ToolBar'),
