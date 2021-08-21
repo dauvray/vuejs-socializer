@@ -7,7 +7,10 @@
             <div class="card-body p-2 d-flex align-items-center">
                 <div class="d-flex align-items-center flex-grow-1">
                     <gravatar-status :user="user"></gravatar-status>
-                    <user-link :user="user"></user-link>
+                    <div class="d-flex flex-column">
+                        <user-link :user="user"></user-link>
+                        <small>{{ user.location }}</small>
+                    </div>
                 </div>
                 <users-btn :user="user"></users-btn>
             </div>
@@ -32,7 +35,7 @@ export default {
         PaginationWidget: () => import('vuejs-estarter/components/widgets/Pagination'),
         GravatarStatus: () => import('../user/GravatarStatus'),
         UserLink: () => import('../user/UserLink'),
-        UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn')
+        UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn'),
     },
     props: {
         type: {
