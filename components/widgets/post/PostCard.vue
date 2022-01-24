@@ -3,7 +3,10 @@
         <div class="card-body post">
             <div class="author">
                 <gravatar-status :user="post.author" size="small"></gravatar-status>
-                <user-link :user="post.author"></user-link>
+                <user-link
+                    :user="post.author"
+                    :profileurl="profileurl"
+                ></user-link>
                 <date-helper :date="post.created_at" class="date pr-2" :format="'since'" />
             </div>
             <p class="card-text">
@@ -78,7 +81,8 @@
         postlikeurl: String,
         postdislikeurl: String,
         postreporturl: String,
-        postcommenturl: String
+        postcommenturl: String,
+        profileurl: String,
     },
     data() {
         return {

@@ -33,6 +33,7 @@
                            :canbecommented="canbecommented"
                            :postdislikeurl="postdislikeurl"
                            :postlikeurl="postlikeurl"
+                           :profileurl="profileurl"
                            :postreporturl="postreporturl"
                            :postcommenturl="postcommenturl"
                            @submitComment="onSubmitComment"
@@ -90,7 +91,9 @@ export default {
         postlikeurl: String,
         postdislikeurl: String,
         postreporturl: String,
-        postcommenturl: String
+        postcommenturl: String,
+        postpublishurl: String,
+        profileurl: String,
     },
     data() {
       return {
@@ -115,7 +118,7 @@ export default {
 
             // is in vuejs-estarter framework ?
             if(typeof this.$estarterSettings === 'undefined') {
-                axios.post('/publish-post', formData)
+                axios.post(this.postpublishurl, formData)
                 .then((response) => {
                     this.componentKey += 100
                     this.posts = response.data.data

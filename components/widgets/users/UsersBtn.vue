@@ -1,35 +1,35 @@
 <template>
     <div>
-        <button v-if="user.is_friend" 
+        <button v-if="user.friends"
             type="button"
-            class="btn btn-primary"
-            @click="onRemoveFriend(user)"
+            class="btn btn-sm btn-danger"
+            @click="onRemoveFriend(user.id)"
         >Bloquer</button>
-        <button v-else-if="user.sended_invitation" 
+        <button v-else-if="user.receivedfriendRequests"
             type="button"
-            class="btn btn-primary"
-            @click="onCancelInvitation(user)"
+            class="btn btn-sm btn-warning"
+            @click="onCancelInvitation(user.id)"
         >Annuler invitation</button>
-        <template v-else-if="user.received_invitation">
-            <button class="btn btn-primary"
+        <template v-else-if="user.sendedfriendRequests">
+            <button class="btn btn-sm btn-success"
                 type="button"
-                @click="onAccepteInvitation(user)"
+                @click="onAcceptInvitation(user.id)"
             >Accepter invitation</button>
-            <button class="btn btn-primary"
+            <button class="btn btn-sm btn-warning"
                 type="button"
-                @click="onDenyInvitation(user)"
+                @click="onDenyInvitation(user.id)"
             >Décliner invitation</button>
         </template>
         <button v-else
             type="button"
-            class="btn btn-primary"
-            @click="onInviteFriend(user)"
+            class="btn btn-sm btn-primary"
+            @click="onInviteFriend(user.id)"
         >Inviter</button>
     </div>
 </template>
 
 <script>
-import {mapActions} from 'vuex'
+
 export default {
     name: 'UsersBtn',
     props: {
@@ -39,27 +39,20 @@ export default {
         }
     },
     methods: {
-        ...mapActions([
-            'users/addFriend',
-            'users/removeFriend',
-            'users/cancelInvitation',
-            'users/accepteInvitation',
-            'users/denyInvitation'
-        ]),
-        onInviteFriend(user) {
-            this['users/addFriend'](user)
+        onInviteFriend(userId) {
+            this.$emit('add-new-friend', userId)
         },
-        onCancelInvitation(user) {
-            this['users/cancelInvitation'](user)
+        onCancelInvitation(userId) {
+            this.$emit('cancel-new-invitation', userId)
         },
-        onAccepteInvitation(user) {
-            this['users/accepteInvitation'](user)
+        onAcceptInvitation(userId) {
+            this.$emit('accept-new-invitation', userId)
         },
-        onRemoveFriend(user) {
-            this['users/removeFriend'](user)
+        onRemoveFriend(userId) {
+            this.$emit('remove-friend', userId)
         },
-        onDenyInvitation(user) {
-            this['users/denyInvitation'](user)
+        onDenyInvitation(userId) {
+            this.$emit('deny-invitation', userId)
         }
     }
 }

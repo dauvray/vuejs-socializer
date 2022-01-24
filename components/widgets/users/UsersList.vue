@@ -7,19 +7,25 @@
             <div class="card-body p-2 d-flex align-items-center">
                 <div class="d-flex align-items-center flex-grow-1">
                     <gravatar-status :user="user"></gravatar-status>
-                    <div class="d-flex flex-column">
-                        <user-link :user="user"></user-link>
-                        <small>{{ user.location }}</small>
-                    </div>
+                    <user-link
+                        class="d-flex flex-column"
+                        :user="user"
+                        :profileurl="profileurl"
+                    ></user-link>
                 </div>
-                <users-btn :user="user"></users-btn>
+                <users-btn
+                    :user="user"
+                    @add-new-friend="onInviteFriend"
+                    @cancel-new-invitation="onCancelInvitation"
+                    @accept-new-invitation="onAcceptInvitation"
+                    @remove-friend="onRemoveFriend"
+                    @deny-invitation="onDenyInvitation"
+                ></users-btn>
             </div>
         </div>
 
         <pagination-widget
-            :items="users" 
-            :links="links" 
-            :meta="meta"
+            :items="users"
             @loadPage="onLoadPage"
         ></pagination-widget>
     </div>
@@ -35,48 +41,61 @@ export default {
         PaginationWidget: () => import('vuejs-estarter/components/widgets/Pagination'),
         GravatarStatus: () => import('../user/GravatarStatus'),
         UserLink: () => import('../user/UserLink'),
-        UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn'),
+        UsersBtn: () => import('./UsersBtn'),
     },
     props: {
-        type: {
+        profileurl: {
             type: String,
-            required: false,
-            default: 'networksUsers'
+            required: true
         }
     },
     data() {
         return {}
     },
     created() {
-        this['users/loadUsers'](this.type)
+        this['users/loadUsers']()
     },
     computed: {
-         ...mapGetters({
-             users: 'users/getUsers',
-             links: 'users/getLinks',
-             meta: 'users/getMeta',
-         }),
+        ...mapGetters({
+            users: 'users/getUsers',
+        }),
     },
-    methods: {
+     methods: {
         ...mapActions([
             'users/loadUsers',
+            'users/addFriend',
+            'users/cancelInvitation',
+            'users/acceptInvitation',
+            'users/removeFriend',
+            'users/denyInvitation'
         ]),
-
-
-
         processData(resp) {
             this.users = resp.data
             this.links = resp.links
             this.meta = resp.meta
         },
-
         onLoadPage(url) {
             this.requestApi(url)
             .then( resp => {
                 this.processData(resp)
             })
         },
-    }
+        onInviteFriend(userId) {
+            this['users/addFriend'](userId)
+        },
+         onCancelInvitation(userId) {
+             this['users/cancelInvitation'](userId)
+         },
+         onAcceptInvitation(userId) {
+             this['users/acceptInvitation'](userId)
+         },
+         onRemoveFriend(userId) {
+             this['users/removeFriend'](userId)
+         },
+         onDenyInvitation(userId) {
+             this['users/denyInvitation'](userId)
+         }
+     }
 }
 </script>
 

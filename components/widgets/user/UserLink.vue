@@ -1,5 +1,5 @@
 <template>
-    <a :href="`/profile/${convertToSlug(user.name)}`">{{ user.name }}</a>
+    <a :href="`/${profileurl}/${convertToSlug(user.name)}`">{{ user.name }}</a>
 </template>
 
 <script>
@@ -10,7 +10,8 @@ export default {
         user: {
             type: Object,
             required: true
-        }
+        },
+        profileurl: String
     },
     methods: {
         convertToSlug(text) {

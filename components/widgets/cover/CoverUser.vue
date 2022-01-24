@@ -19,7 +19,14 @@
            @click.prevent="editProfil" href="#">
             <i class="las la-pencil-alt"></i>
         </a>
-        <users-btn v-else :user="item"></users-btn>
+        <users-btn v-else
+            :user="item"
+            @add-new-friend="onInviteFriend"
+            @cancel-new-invitation="onCancelInvitation"
+            @accept-new-invitation="onAccepteInvitation"
+            @remove-friend="onRemoveFriend"
+            @deny-invitation="onDenyInvitation"
+        ></users-btn>
         <div class="flex-grow-1">
             <modal-widget
                 v-if="editable"
@@ -49,7 +56,7 @@
 </template>
 
 <script>
-
+    import {mapActions, mapGetters} from 'vuex'
     export default {
         name: 'CoverUser',
         inject: ["eventBus"],
@@ -82,29 +89,42 @@
           return {
               file: null,
               backgroundSize: 'cover',
-              element: this.user,
               canValidateCover: false
           }
         },
+        created() {
+           this.setUser(this.user)
+        },
         computed: {
+            ...mapGetters({
+                item: 'users/getUser',
+            }),
             BackgroundImage: function() {
                 return `url(${this.coverUrl})`
             },
             coverUrl: function() {
                 return this.item.cover
-                    ? `/storage/covers/${this.item.cover}`
+                    ? `/storage/users/${this.item.cover}`
                     : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
             },
-            item: function() {
-                return this.element
-            }
         },
         watch: {
             user: function (newValue, oldValue) {
-                this.element = newValue
+                this.setUser(newValue)
             }
         },
         methods: {
+            ...mapActions([
+                'users/setUser',
+                'users/addFriend',
+                'users/cancelInvitation',
+                'users/acceptInvitation',
+                'users/removeFriend',
+                'users/denyInvitation'
+            ]),
+            setUser(user) {
+                this['users/setUser'](this.user)
+            },
             onCroppedCover(file) {
                 this.file = file
             },
@@ -132,6 +152,21 @@
             },
             onCroppedAvatar(file) {
                 this.$emit('onCroppedAvatar', file)
+            },
+            onInviteFriend(userId) {
+                this['users/addFriend'](userId)
+            },
+            onCancelInvitation(userId) {
+                this['users/cancelInvitation'](userId)
+            },
+            onAcceptInvitation(userId) {
+                this['users/acceptInvitation'](userId)
+            },
+            onRemoveFriend(userId) {
+                this['users/removeFriend'](userId)
+            },
+            onDenyInvitation(userId) {
+                this['users/denyInvitation'](userId)
             }
         }
     }
