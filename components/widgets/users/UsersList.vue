@@ -2,17 +2,13 @@
     <div>
         <div v-for="(user, idx) in users"
         class="card mb-2"
-        :key="idx"
-        >
+        :key="idx">
             <div class="card-body p-2 d-flex align-items-center">
-                <div class="d-flex align-items-center flex-grow-1">
-                    <gravatar-status :user="user"></gravatar-status>
-                    <user-link
-                        class="d-flex flex-column"
-                        :user="user"
-                        :profileurl="profileurl"
-                    ></user-link>
-                </div>
+                <author-widget
+                    class="flex-grow-1"
+                    :author="user"
+                    :profileurl="profileurl"
+                ></author-widget>
                 <users-btn
                     :user="user"
                     @add-new-friend="onInviteFriend"
@@ -23,7 +19,6 @@
                 ></users-btn>
             </div>
         </div>
-
         <pagination-widget
             :items="users"
             @loadPage="onLoadPage"
@@ -39,21 +34,35 @@ export default {
     name: 'UsersList',
     components: {
         PaginationWidget: () => import('vuejs-estarter/components/widgets/Pagination'),
-        GravatarStatus: () => import('../user/GravatarStatus'),
-        UserLink: () => import('../user/UserLink'),
+        GravatarStatus: () => import('vuejs-estarter/components/widgets/GravatarStatus'),
+        AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),
+        UserLink: () => import('vuejs-eblogger/components/widgets/links/UserLink'),
         UsersBtn: () => import('./UsersBtn'),
     },
     props: {
         profileurl: {
             type: String,
             required: true
+        },
+        type: {
+            type: String,
+            required: false,
+            default: 'allNetworkUsers'
         }
     },
     data() {
         return {}
     },
     created() {
-        this['users/loadUsers']()
+        switch(this.type) {
+            case 'allNetworkUsers':
+                this['users/loadNetworkUsers']()
+                break
+            case 'friendUsers':
+                this['users/loadFriendUsers']()
+                break
+        }
+
     },
     computed: {
         ...mapGetters({
@@ -62,7 +71,8 @@ export default {
     },
      methods: {
         ...mapActions([
-            'users/loadUsers',
+            'users/loadNetworkUsers',
+            'users/loadFriendUsers',
             'users/addFriend',
             'users/cancelInvitation',
             'users/acceptInvitation',

@@ -1,43 +1,61 @@
 <template>
     <div class="card mt-3 post-wrapper">
         <div class="card-body post">
-            <div class="author">
-                <gravatar-status :user="post.author" size="small"></gravatar-status>
-                <user-link
-                    :user="post.author"
-                    :profileurl="profileurl"
-                ></user-link>
-                <date-helper :date="post.created_at" class="date pr-2" :format="'since'" />
-            </div>
-            <p class="card-text">
-                {{post.content}}
-            </p>
+            <author-widget
+                :author="post.author"
+                size="small"
+                :profileurl="profileurl"
+            ></author-widget>
+            <date-helper
+                :date="post.created_at"
+                :format="'since'"
+            ></date-helper>
+            <post-target
+                class="post-target"
+                :target="post.target"
+            ></post-target>
+            <comment-content
+                :item="post"
+            ></comment-content>
             <tool-bar
                 :comment="post"
                 :logged="logged"
                 :formvisible="formvisible"
                 :canbeliked="canbeliked"
                 :canbereported="canbereported"
+                :canbedeleted="canbedeleted"
                 :postlikeurl="postlikeurl"
                 :postdislikeurl="postdislikeurl"
                 :postreporturl="postreporturl"
-                @response-comment="onShowForm"
+                @item-deleted="onPostDeleted"
             ></tool-bar>
-            <comments-widget
+            <comment-form
+                v-if="formvisible"
                 :commentable="post"
+                :canRate="false"
+                :canberated="canberated"
+                :canbeliked="canbeliked"
+                :parentid="post.id"
                 :logged="logged"
-                :formvisible="formvisible"
-                :showInfos="false"
-                :canbecommented="canbecommented"
+                @submitComment="onSubmitComment"
+            ></comment-form>
+            <comment-list
+                v-if="post.comments.data.length"
+                class="comment-list-wrapper"
+                :commentable="post"
+                :comments="post.comments.data"
+                :logged="logged"
                 :canberated="canberated"
                 :canbeliked="canbeliked"
                 :canbereported="canbereported"
-                :postcommenturl="postcommenturl"
+                :canbedeleted="canbedeleted"
                 :postdislikeurl="postdislikeurl"
                 :postlikeurl="postlikeurl"
                 :postreporturl="postreporturl"
+                :profileurl="profileurl"
                 @submitComment="onSubmitComment"
-            ></comments-widget>
+                @item-deleted="onCommentDeleted"
+            ></comment-list>
         </div>
     </div>
 </template>
@@ -47,11 +65,13 @@
     name: "PostCard",
     inject: ["eventBus"],
     components: {
-        GravatarStatus: () => import('../user/GravatarStatus'),
-        UserLink: () => import('../user/UserLink'),
+        AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),
         DateHelper: () => import('vuejs-eblogger/components/widgets/DateHelper'),
-        CommentsWidget: () => import('vuejs-eblogger/components/widgets/Comment/Comments'),
+        CommentContent: () => import('vuejs-eblogger/components/widgets/Comment/partials/CommentContent'),
+        CommentForm: () => import('vuejs-eblogger/components/widgets/Comment/CommentForm'),
         ToolBar: () => import('vuejs-eblogger/components/widgets/Comment/widgets/ToolBar'),
+        PostTarget: () => import('vuejs-socializer/components/widgets/post/PostTarget'),
+        CommentList: () => import('vuejs-eblogger/components/widgets/Comment/CommentList'),
     },
     props: {
         post: {
@@ -78,6 +98,10 @@
             type: Boolean,
             default: false
         },
+        canbedeleted: {
+            type: Boolean,
+            default: false
+        },
         postlikeurl: String,
         postdislikeurl: String,
         postreporturl: String,
@@ -89,21 +113,48 @@
             formvisible: false,
         }
     },
+    created() {
+        this.eventBus.$on("close-comment-form", this.handleCloseReactFrom)
+    },
     methods: {
         toggleComments() {
             this.isCommentsVisble = !this.isCommentsVisble
         },
         onSubmitComment(data) {
-            this.$emit('submitComment', data)
+            data.parent_id = this.post.id == data.parent_id ? 0 : data.parent_id
+            this.$emit('submitComment', {...data, postId: this.post.id})
             this.formvisible = false
         },
         onShowForm() {
             this.formvisible = !this.formvisible
         },
+        handleCloseReactFrom(obj) {
+            if(this.post.id != obj.id && this.post.type != obj.type) {
+                this.formvisible = false
+            }
+            else {
+                this.onShowForm()
+            }
+        },
+        onCommentDeleted(data) {
+            this.$emit('comment-deleted', {...data, postId: this.post.id})
+        },
+        onPostDeleted(data) {
+            this.$emit('post-deleted', data)
+        }
     }
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+    .post-wrapper {
+        .post {
+            position: relative;
+            .post-target {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+            }
+        }
+    }
 </style>

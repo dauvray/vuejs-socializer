@@ -4,7 +4,7 @@
             type="button"
             class="btn btn-sm btn-danger"
             @click="onRemoveFriend(user.id)"
-        >Bloquer</button>
+        ><i class="las la-user-alt-slash"></i> Bloquer</button>
         <button v-else-if="user.receivedfriendRequests"
             type="button"
             class="btn btn-sm btn-warning"
@@ -14,17 +14,17 @@
             <button class="btn btn-sm btn-success"
                 type="button"
                 @click="onAcceptInvitation(user.id)"
-            >Accepter invitation</button>
+            ><i class="las la-user-friends"></i> Accepter invitation</button>
             <button class="btn btn-sm btn-warning"
                 type="button"
                 @click="onDenyInvitation(user.id)"
-            >Décliner invitation</button>
+            ><i class="las la-user-times"></i> Décliner invitation</button>
         </template>
         <button v-else
             type="button"
             class="btn btn-sm btn-primary"
             @click="onInviteFriend(user.id)"
-        >Inviter</button>
+        ><i class="las la-user-plus"></i> Suivre</button>
     </div>
 </template>
 

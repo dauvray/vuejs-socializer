@@ -7,13 +7,14 @@
             :item="item"
              @onCroppedAvatar="onCroppedAvatar"
         ></avatar-cropper>
-        <gravatar-widget v-else
+        <gravatar-status
             class="float-left pr-2"
+            size="medium"
             :user="user"
-        ></gravatar-widget>
+        ></gravatar-status>
         <div class="mr-2 pb-1 bg-opacity-dark-3">
             <h2 class="text-white m-0 p-2">{{ item.name }}</h2>
-            <i class="text-white p-2">{{ item.email }}</i>
+            <i class="text-white p-2">{{ item.function }}</i>
         </div>
         <a v-if="editable" class="mr-2 btn btn-primary" role="button"
            @click.prevent="editProfil" href="#">
@@ -23,7 +24,7 @@
             :user="item"
             @add-new-friend="onInviteFriend"
             @cancel-new-invitation="onCancelInvitation"
-            @accept-new-invitation="onAccepteInvitation"
+            @accept-new-invitation="onAcceptInvitation"
             @remove-friend="onRemoveFriend"
             @deny-invitation="onDenyInvitation"
         ></users-btn>
@@ -62,7 +63,7 @@
         inject: ["eventBus"],
         components: {
             AvatarCropper: () => import('vuejs-estarter/components/widgets/AvatarCropper'),
-            GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
+            GravatarStatus: () => import('vuejs-estarter/components/widgets/GravatarStatus'),
             ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
             CropperWidget: () => import('vuejs-estarter/components/widgets/CropperWidget'),
             UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn')

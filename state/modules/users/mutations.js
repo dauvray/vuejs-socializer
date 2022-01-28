@@ -53,7 +53,4 @@ export default {
             state.user = null
         }
     },
-    removeFriend(state, user_id) {
-        this.denyInvitation(state, user_id)
-    },
 }

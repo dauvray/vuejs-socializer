@@ -4,6 +4,14 @@ export default {
     setUser({commit}, user) {
         commit('setUser', user)
     },
+    async loadNetworkUsers({commit}) {
+        let response = await RestDataSourcesMixin.methods.requestApi('/get-network-users')
+        commit('setPaginatedUsers', response)
+    },
+    async loadFriendUsers({commit}) {
+        let response = await RestDataSourcesMixin.methods.requestApi('/get-friend-users')
+        commit('setPaginatedUsers', response)
+    },
     async addFriend({commit}, user_id) {
         let response = await RestDataSourcesMixin.methods.requestApi(
             `/add-friend/${user_id}`,
@@ -25,7 +33,7 @@ export default {
                 err: 'Bloquage impossible',
                 msg: 'Relation bloquée'
             })
-        commit('removeFriend', user_id)
+        commit('denyInvitation', user_id)
     },
     async cancelInvitation({commit}, user_id) {
         let response = await RestDataSourcesMixin.methods.requestApi(
@@ -60,8 +68,4 @@ export default {
             })
         commit('denyInvitation', user_id)
     },
-    async loadUsers({commit}) {
-        let response = await RestDataSourcesMixin.methods.requestApi('/get-network-users')
-        commit('setPaginatedUsers', response)
-    }
 }
