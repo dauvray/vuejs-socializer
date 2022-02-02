@@ -8,10 +8,12 @@
              @onCroppedAvatar="onCroppedAvatar"
         ></avatar-cropper>
         <gravatar-status
+            v-else
             class="float-left pr-2"
             size="medium"
             :user="user"
         ></gravatar-status>
+
         <div class="mr-2 pb-1 bg-opacity-dark-3">
             <h2 class="text-white m-0 p-2">{{ item.name }}</h2>
             <i class="text-white p-2">{{ item.function }}</i>
@@ -20,7 +22,7 @@
            @click.prevent="editProfil" href="#">
             <i class="las la-pencil-alt"></i>
         </a>
-        <users-btn v-else
+        <users-btn v-if="!user.is_me"
             :user="item"
             @add-new-friend="onInviteFriend"
             @cancel-new-invitation="onCancelInvitation"

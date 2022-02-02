@@ -18,6 +18,7 @@
                 :item="post"
             ></comment-content>
             <tool-bar
+                class="mt-3"
                 :comment="post"
                 :logged="logged"
                 :formvisible="formvisible"
@@ -30,6 +31,7 @@
                 @item-deleted="onPostDeleted"
             ></tool-bar>
             <comment-form
+                class="mt-3"
                 v-if="formvisible"
                 :commentable="post"
                 :canRate="false"
@@ -126,14 +128,15 @@
             this.formvisible = false
         },
         onShowForm() {
+            this.eventBus.$emit("close-comment-form", this.post);
             this.formvisible = !this.formvisible
         },
         handleCloseReactFrom(obj) {
-            if(this.post.id != obj.id && this.post.type != obj.type) {
+            if(this.post.id != obj.id || this.post.type != obj.type) {
                 this.formvisible = false
             }
             else {
-                this.onShowForm()
+                this.formvisible = !this.formvisible
             }
         },
         onCommentDeleted(data) {

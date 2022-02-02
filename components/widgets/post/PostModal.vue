@@ -1,30 +1,38 @@
 <template>
-    <modal-widget
-        :target="targetModal"
-        class="d-flex justify-content-end"
-        btnclass="btn btn-light btn-sm">
-        <template #button>
+    <div>
+        <button
+            type="button"
+            class="btn btn-light btn-sm"
+            @click="onShowModal">
             <i class="lar la-paper-plane"></i> {{getPublishBtnLabel}}
-        </template>
-        <template #header>
-            Créer un post
-        </template>
-        <template #body>
-            <div class="author">
-                <gravatar-widget :user="user" size="small"></gravatar-widget>
-                {{user.name}}
-            </div>
-            <post-form
-                :type="type"
-                @change-post-content="onChangePostContent"
-                @change-post-target="onChangePostTarget"
-            ></post-form>
-        </template>
-        <template #footer>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-            <button type="button" class="btn btn-primary" @click="onPublishPost">Publier</button>
-        </template>
-    </modal-widget>
+        </button>
+        <modal-widget
+            v-if="showModal"
+            class="d-flex justify-content-end"
+            :target="targetModal"
+            :trigger="showModal"
+            :showBtn="false"
+            @hide="onHideModal">
+            <template #header>
+                Créer un post
+            </template>
+            <template #body>
+                <div class="author">
+                    <gravatar-widget :user="user" size="small"></gravatar-widget>
+                    {{user.name}}
+                </div>
+                <post-form
+                    :type="type"
+                    @change-post-content="onChangePostContent"
+                    @change-post-target="onChangePostTarget"
+                ></post-form>
+            </template>
+            <template #footer>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" @click="onPublishPost">Publier</button>
+            </template>
+        </modal-widget>
+    </div>
 </template>
 
 <script>
@@ -51,7 +59,8 @@
           return {
               targetModal: 'publishPost',
               postContent: null,
-              postTarget: null
+              postTarget: null,
+              showModal: false,
           }
         },
         computed: {
@@ -80,6 +89,12 @@
                     this.postContent = null
                     this.postTarget = null
                 })
+            },
+            onShowModal() {
+                this.showModal = true
+            },
+            onHideModal() {
+                this.showModal = false
             },
         }
     }

@@ -27,10 +27,16 @@
                 required: true,
             }
         },
+        data() {
+            return {
+                selection: '',
+                content: '',
+            }
+        },
         computed: {
             postContent: {
                 get() {
-                    return ''
+                    return this.content
                 },
                 set(value) {
                     this.$emit('change-post-content', value)
@@ -38,7 +44,7 @@
             },
             selected: {
                 get() {
-                    return ''
+                    return this.selection
                 },
                 set(value) {
                     this.$emit('change-post-target', value)
