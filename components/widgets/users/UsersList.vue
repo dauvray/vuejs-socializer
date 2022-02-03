@@ -9,6 +9,7 @@
                     :author="user"
                     :profileurl="profileurl"
                 ></author-widget>
+                <users-communication></users-communication>
                 <users-btn
                     :user="user"
                     @add-new-friend="onInviteFriend"
@@ -38,6 +39,7 @@ export default {
         AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),
         UserLink: () => import('vuejs-eblogger/components/widgets/links/UserLink'),
         UsersBtn: () => import('./UsersBtn'),
+        UsersCommunication: () => import('./UsersCommunication'),
     },
     props: {
         profileurl: {

@@ -5,8 +5,11 @@ export default {
         commit('setPostList', posts)
     },
     async publishPost({commit}, post) {
+
+        const url = post.type == 'feed' ? '/publish-post' : '/publish-user-wall-post'
+
         let response = await RestDataSourcesMixin.methods.requestApi(
-            '/publish-post',
+            url,
             'post',
             post,
             {

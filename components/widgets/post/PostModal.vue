@@ -17,10 +17,10 @@
                 Créer un post
             </template>
             <template #body>
-                <div class="author">
-                    <gravatar-widget :user="user" size="small"></gravatar-widget>
-                    {{user.name}}
-                </div>
+                <author-widget
+                    :author="user"
+                    size="small"
+                ></author-widget>
                 <post-form
                     :type="type"
                     @change-post-content="onChangePostContent"
@@ -43,7 +43,7 @@
         components: {
             PostForm: () => import('vuejs-socializer/components/widgets/post/PostForm'),
             ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
-            GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
+            AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),
         },
         props: {
             user: {
@@ -82,12 +82,10 @@
                 this['posts/publishPost']({
                     target: this.postTarget,
                     postContent: this.postContent,
+                    user_id: this.user.id,
+                    type: this.type
                 }).then(() => {
-                    const modal = document.getElementById(this.targetModal)
-                    const bsModal = bootstrap.Modal.getOrCreateInstance(modal)
-                    bsModal.hide()
-                    this.postContent = null
-                    this.postTarget = null
+                    this.resetAll()
                 })
             },
             onShowModal() {
@@ -96,6 +94,13 @@
             onHideModal() {
                 this.showModal = false
             },
+            resetAll() {
+                const modal = document.getElementById(this.targetModal)
+                const bsModal = bootstrap.Modal.getOrCreateInstance(modal)
+                bsModal.hide()
+                this.postContent = null
+                this.postTarget = null
+            }
         }
     }
 </script>

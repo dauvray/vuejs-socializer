@@ -107,7 +107,7 @@ export default {
     watch: {
         feed: function (newValue, oldValue) {
             this.setPostList(newValue)
-        }
+        },
     },
     created() {
         this.setPostList(this.feed)
