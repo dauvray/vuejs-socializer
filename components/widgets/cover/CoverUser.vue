@@ -22,6 +22,10 @@
            @click.prevent="editProfil" href="#">
             <i class="las la-pencil-alt"></i>
         </a>
+        <users-communication
+            v-if="!user.is_me"
+            :user="item"
+        ></users-communication>
         <users-btn v-if="!user.is_me"
             :user="item"
             @add-new-friend="onInviteFriend"
@@ -68,7 +72,8 @@
             GravatarStatus: () => import('vuejs-estarter/components/widgets/GravatarStatus'),
             ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
             CropperWidget: () => import('vuejs-estarter/components/widgets/CropperWidget'),
-            UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn')
+            UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn'),
+            UsersCommunication: () => import('vuejs-socializer/components/widgets/users/UsersCommunication'),
         },
         props: {
             user: {
