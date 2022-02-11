@@ -25,6 +25,7 @@
 </template>
 
 <script>
+    'use strict'
 
     export default {
         name: "WebRTCWrapper",
@@ -41,13 +42,14 @@
         },
         data() {
             return {
+                timer: 1000,
                 self: {
                     rtcConfig: null,
                     mediaConstraints: { audio: false, video: true },
                     features: {},
                     me: null,
                 },
-                peers: {},
+                peers: [],
                 namespace: null,
                 sc: null,
             }
@@ -57,10 +59,12 @@
             this.namespace = this.notification.notification.data.room
             this.sc = io.connect(process.env.MIX_NODEJS_SERVER + '/' + this.namespace, { autoConnect: false })
             this.eventBus.$emit('who-am-i')
-            this.registerScCallbacks()
         },
         mounted() {
-            setTimeout(() => {this.joinCall()}, 1000)
+            setTimeout(() => {
+                this.joinCall()
+                this.registerScCallbacks()
+            }, this.timer)
         },
         beforeDestroy() {
             this.leaveCall()
@@ -68,6 +72,15 @@
         methods: {
             onHideModal() {
                 this.$emit('hide-modal')
+            },
+            getPeer(id) {
+                let wanted
+                this.peers.forEach(peer => {
+                    if(peer.id == id) {
+                        wanted = peer
+                    }
+                })
+                return wanted
             },
             /**
              *  User-Interface Functions and Callbacks
@@ -81,15 +94,15 @@
             },
             leaveCall() {
                 this.sc.close()
-                for (let id in this.peers) {
-                    this.resetPeer(id)
-                }
+                this.peers.forEach((peer, idx) => {
+                    this.resetPeer(peer.id, idx)
+                })
                 this.onHideModal()
             },
 
             // the available features for each peers
             addFeaturesChannel(id) {
-                const peer = this.peers[id];
+                const peer = this.getPeer(id);
                 peer.featuresChannel = peer.connection.createDataChannel(
                     'features',
                     { negotiated: true, id: 60 }
@@ -114,14 +127,16 @@
 
                 this.addFeaturesChannel(id)
                 // all RTCcomponents listens this event to add features
-                this.eventBus.$emit('socializer-establish-features', id)
+                setTimeout(() => {
+                    this.eventBus.$emit('socializer-establish-features', id)
+                }, 1000)
             },
-            resetPeer(id, preserve = false) {
-                const peer = this.peers[id]
+            resetPeer(id, idx, preserve = false) {
+                const peer = this.peers[idx]
                 peer.connection.close()
                 this.eventBus.$emit('socializer-reset-peer', id, preserve)
                 if (!preserve) {
-                    delete this.peers[id]
+                    this.peers.splice(idx,1)
                 }
             },
 
@@ -129,18 +144,12 @@
              *  WebRTC Functions and Callbacks
              */
             registerRtcCallbacks(id) {
-                const peer = this.peers[id]
+                const peer = this.getPeer(id)
                 peer.connection.onconnectionstatechange = this.handleRtcConnectionStateChange(id)
                 peer.connection.onnegotiationneeded = this.handleRtcConnectionNegotiation(id)
                 peer.connection.onicecandidate = this.handleRtcIceCandidate(id)
                 peer.connection.ontrack = this.handleRtcPeerTrack(id)
                 peer.connection.ondatachannel = this.handleRTCDataChannel(id)
-            },
-            handleRtcPeerTrack(id) {
-                return ({ track, streams: [stream] }) => {
-                    console.log(`Attempt to display media from peer ID: ${id}`)
-                    this.eventBus.$emit('socializer-handle-rtc-peer-track', `#peer-${id}`, stream)
-                }
             },
             /**
              * =========================================================================
@@ -153,7 +162,7 @@
              */
             handleRtcConnectionNegotiation(id) {
                 return async () => {
-                    const peer = this.peers[id]
+                    const peer = this.getPeer(id)
                     const selfState = peer.selfStates
                     if (selfState.isSuppressingInitialOffer) return
                     try {
@@ -181,7 +190,7 @@
             },
             handleRtcConnectionStateChange(id) {
                 return () => {
-                    const peer = this.peers[id]
+                    const peer = this.getPeer(id)
                     const connectionState = peer.connection.connectionState
                     // Assume *some* element will take a unique peer ID
                     const peerElement = document.querySelector(`#peer-${id}`)
@@ -197,6 +206,12 @@
                     console.log(`Data channel added for ${label}`)
                     this.eventBus.$emit('socializer-handle-rtc-data-channel', {id, channel})
                     console.log(`Opened ${channel.label} channel with an ID of ${channel.id}`)
+                }
+            },
+            handleRtcPeerTrack(id) {
+                return ({ track, streams: [stream] }) => {
+                    console.log(`Attempt to display media from peer ID: ${id}`)
+                    this.eventBus.$emit('socializer-handle-rtc-peer-track', id, stream)
                 }
             },
 
@@ -233,11 +248,15 @@
             },
             handleScDisconnectedPeer(id) {
                 console.log(`Disconnected peer ID: ${id}`)
-                this.resetPeer(id)
+                this.peers.forEach((peer, idx) => {
+                    if(peer.id == id) {
+                        this.resetPeer(peer.id, idx)
+                    }
+                })
             },
             async handleScSignal({ from, signal: { candidate, description } }) {
                 const id = from
-                const peer = this.peers[id]
+                const peer = this.getPeer(id)
                 const selfState = peer.selfStates
 
                 if (description) {
@@ -303,10 +322,14 @@
                 }
             },
             resetAndRetryConnection(id) {
-                const polite = this.peers[id].selfStates.isPolite
-                this.resetPeer(id, true)
+                const polite = this.getPeer(id).selfStates.isPolite
+                this.peers.forEach(peer => {
+                    if(peer.id == id) {
+                        this.resetPeer(id, idx, true)
+                    }
+                })
                 this.initializePeer(id, polite)
-                this.peers[id].selfStates.isSuppressingInitialOffer = polite
+                this.getPeer(id).selfStates.isSuppressingInitialOffer = polite
                 this.establishCallFeatures(id)
                 if (polite) {
                     this.sc.emit('signal',
@@ -322,8 +345,9 @@
                 }
             },
             initializePeer(id, polite) {
-                this.peers[id] = {
+                this.peers.push({
                     connection: new RTCPeerConnection(this.self.rtcConfig),
+                    id: id,
                     selfStates: {
                         isPolite: polite,
                         isMakingOffer: false,
@@ -331,10 +355,10 @@
                         isSettingRemoteAnswerPending: false,
                         isSuppressingInitialOffer: false
                     }
-                }
+                })
             },
             onCreateDataChannel(options) {
-                const peer = this.peers[options.peerId]
+                const peer = this.getPeer(options.peerId)
                 peer[options.channel] = peer.connection.createDataChannel(
                     options.label,
                     options.config || null
@@ -550,33 +574,6 @@ figcaption form > * {
     padding: 0;
 }
 
-
-/* Video Effects
- blur()
-brightness()
-contrast()
-drop-shadow()
-grayscale()
-hue-rotate()
-invert()
-opacity()
-saturate()
-sepia()
-
- */
-
-.filter-grayscale {
-    filter: grayscale(100%);
-}
-.filter-sepia {
-    filter: sepia(100%);
-}
-.filter-noir {
-    filter: grayscale(100%) contrast(300%) brightness(60%);
-}
-.filter-psychedelic {
-    filter: hue-rotate(180deg) saturate(400%) contrast(200%);
-}
 
 /* Media Queries */
 @media screen and (min-width: 500px) {

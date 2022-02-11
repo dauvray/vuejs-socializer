@@ -3,17 +3,21 @@
         id="videos"
         ref="videos">
         <h2 class="preserve-access">Streaming Videos</h2>
-        <figure
-            id="self"
-            ref="self"
-            @click="handleSelfVideo">
-            <video
-                autoplay
-                muted
-                playsinline
-                :poster="placeholder">
-            </video>
-        </figure>
+        <webcam-widget
+            selector="self"
+            :self="self"
+            :placeholder="placeholder"
+            @apply-filter="handleSelfFilterVideo"
+        ></webcam-widget>
+
+        <webcam-widget
+            v-for="(peer, idx) in peers"
+            :key="idx"
+            :selector="`peer-${peer.id}`"
+            :peer="peer"
+            :self="self"
+            :placeholder="placeholder"
+        ></webcam-widget>
     </article>
 </template>
 
@@ -22,9 +26,12 @@
     export default {
         name: "WebcamsComponent",
         inject: ["eventBus"],
+        components: {
+           WebcamWidget: () => import('vuejs-socializer/components/widgets/System/communication/webRTCWebcamComponent/WebcamPlayer')
+        },
         props: {
             peers: {
-                type: Object,
+                type: Array,
                 required: true,
             },
             self: {
@@ -35,45 +42,39 @@
         data() {
             return {
                 placeholder: '/images/vendor/socializer/placeholder.png',
-                filters: ['grayscale', 'sepia', 'noir', 'psychedelic', 'none'],
-                peer: null,
+               // filters: ['grayscale', 'sepia', 'noir', 'psychedelic', 'none'],
+               // peer: null,
             }
         },
         created() {
             this.eventBus.$on('socializer-establish-features', this.establishCallFeatures)
             this.eventBus.$on('socializer-handle-rtc-data-channel', this.handleRTCDataChannel)
-            this.eventBus.$on('socializer-handle-rtc-peer-track', this.handleRTCPeerTRack)
-            this.eventBus.$emit('socializer-reset-peer', this.onResetPeer)
-            this.requestUserMedia(this.self.mediaConstraints)
         },
         beforeDestroy() {
             const stream = this.self.stream
             const tracks = stream.getTracks()
             tracks.forEach(function(track) {
-                track.stop();
+                track.stop()
             })
             this.self.stream.srcObject = null
         },
         methods: {
+            getPeer(id) {
+                let wanted
+                this.peers.forEach(peer => {
+                    if(peer.id == id) {
+                        wanted = peer
+                    }
+                })
+                return wanted
+            },
             /**
              *  WebRTC Functions and Callbacks
              */
             establishCallFeatures(id) {
-                // media
-                this.addStreamingMedia(id, this.self.stream)
                 // share self infos
-                if (this.self.me) {
-                    this.shareUsername(this.self.me.name, id)
-                    this.shareUseravatar(this.self.me.image, id)
-                }
-            },
-            addStreamingMedia(id, stream) {
-                this.peer = this.peers[id]
-                if (stream) {
-                    for (let track of stream.getTracks()) {
-                        this.peer.connection.addTrack(track, stream)
-                    }
-                }
+                this.shareUsername(this.self.me.name, id)
+                this.shareUseravatar(this.self.me.image, id)
             },
             // obj = {id, channel }
             handleRTCDataChannel(obj) {
@@ -100,105 +101,51 @@
                     }
                 }
             },
-            handleRTCPeerTRack(selector, stream) {
-                this.displayStream(selector, stream)
-            },
-            async requestUserMedia(media_constraints) {
-                this.self.stream = new MediaStream();
-                this.self.media = await navigator.mediaDevices.getUserMedia(media_constraints);
-                this.self.stream.addTrack(this.self.media.getTracks()[0]);
-                this.displayStream('self', this.self.stream);
-            },
             // Vidéo filter
-            handleSelfVideo(event) {
-                const filter = `filter-${this.cycleFilter()}`
-                for (let id in this.peers) {
-                    this.shareUserFilter(id, filter)
-                }
-                event.target.className = filter
+            handleSelfFilterVideo(filter) {
+                this.peers.forEach(peer => {
+                    if (peer.connection.connectionState === 'connected'){
+                        this.$emit('create-data-channel', {
+                            peerId: peer.id,
+                            label: filter,
+                            channel: 'filterChannel',
+                            onclose: () => {console.log(`Remote peer ${peer.id} has closed the ${filter} data channel`)}
+                        })
+                    }
+                })
             },
             shareUserFilter(id, filter) {
-                const peer = this.peers[id];
+                console.log(`Attempt to send filter to peer ID: ${id}`)
+                const peer = this.getPeer(id)
                 if (peer.connection.connectionState !== 'connected') return
                 this.$emit('create-data-channel', {
                     peerId: id,
                     label: filter,
+                    channel: 'filterChannel',
                     onclose: () => {console.log(`Remote peer ${id} has closed the ${filter} data channel`)}
                 })
             },
             // User name
             shareUsername(username, id) {
                 console.log(`Attempt to send username to peer ID: ${id}`)
-                const peer = this.peers[id]
+                const peer = this.getPeer(id)
                 this.$emit('create-data-channel', {
                     peerId: id,
-                    label: `username-${username}`
+                    label: `username-${username}`,
+                    channel: 'usernameChannel',
+                    onclose: () => {console.log(`Remote peer ${id} has closed the usernameChannel data channel`)}
                 })
             },
             shareUseravatar(icon, id) {
                 console.log(`Attempt to send username to peer ID: ${id}`)
-                const peer = this.peers[id]
+                const peer = this.getPeer(id)
                 this.$emit('create-data-channel', {
                     peerId: id,
-                    label: `avatar-${icon}`
+                    label: `avatar-${icon}`,
+                    channel: 'avatarChannel',
+                    onclose: () => {console.log(`Remote peer ${id} has closed the avatarChannel data channel`)}
                 })
             },
-            createVideoElement(id) {
-                const figure = document.createElement('figure')
-                const figcaption = document.createElement('figcaption')
-                const video = document.createElement('video')
-                const icon = document.createElement('img')
-                const nickname = document.createElement('span')
-                const videoAttributes = {
-                    autoplay: '',
-                    playsinline: '',
-                    poster: this.placeholder
-                }
-                const iconAttributes = {
-                    src: this.placeholder
-                }
-                // Set attributes
-                figure.id = `peer-${id}`
-                for (let attr in iconAttributes) {
-                    icon.setAttribute(attr, iconAttributes[attr])
-                }
-                figcaption.appendChild(icon)
-                figcaption.appendChild(nickname)
-                // figcaption.innerText = id
-
-                for (let attr in videoAttributes) {
-                    video.setAttribute(attr, videoAttributes[attr])
-                }
-                // Append the video and figcaption elements
-                figure.appendChild(video)
-                figure.appendChild(figcaption)
-                // Return the complete figure
-                return figure
-            },
-            displayStream(selector, stream) {
-                let videoElement = this.$refs[selector]
-                let video
-                if (!videoElement) {
-                    const id = selector.replace(/^#peer-/, ''); // remove `#peer-` portion
-                    const videos = this.$refs.videos
-                    videoElement = this.createVideoElement(id);
-                    videos.appendChild(videoElement);
-                }
-                video = videoElement.querySelector('video')
-                video.srcObject = stream
-            },
-            onResetPeer(id, preserve) {
-                const videoElement = `#peer-${id}`
-                this.displayStream(videoElement, null)
-                if (!preserve) {
-                    document.querySelector(videoElement).remove()
-                }
-            },
-            cycleFilter() {
-                const filter = this.filters.shift()
-                this.filters.push(filter)
-                return filter
-            }
         }
     }
 </script>

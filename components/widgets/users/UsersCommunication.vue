@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+        <div class="btn-group btn-group-sm" role="group" aria-label="Communication">
             <video-button
                 v-if="user.is_online"
                 :user="user"

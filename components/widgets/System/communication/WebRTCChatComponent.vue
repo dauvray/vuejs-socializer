@@ -1,7 +1,14 @@
 <template>
     <aside id="chat">
         <h2 class="preserve-access">Text Chat</h2>
-        <ol id="chat-log"></ol>
+        <ol id="chat-log" ref="chat-log">
+            <message-widget
+                v-for="(message,idx) in messages"
+                :key="`msg-${idx}`"
+                :message="message"
+                @scroll-to-end="scrollToEnd"
+            ></message-widget>
+        </ol>
         <form id="chat-form" action="#null" v-on:submit.prevent="handleMessageForm">
             <label for="chat-msg" class="preserve-access">Compose Message</label>
             <input type="text" id="chat-msg" name="chat-msg" autocomplete="off" />
@@ -13,9 +20,16 @@
 </template>
 
 <script>
+    import WebRTCMixin from 'vuejs-socializer/components/widgets/System/communication/mixins/WebRTCMixin'
     export default {
         name: "WebRTCChatComponent",
         inject: ["eventBus"],
+        mixins: [
+            WebRTCMixin
+        ],
+        components: {
+          MessageWidget: () => import('vuejs-socializer/components/widgets/System/communication/webRTCChatComponent/Message')
+        },
         props: {
             peers: {
                 type: Object,
@@ -28,6 +42,7 @@
         },
         data() {
             return {
+                messages: [],
                 messageQueue: [],
                 peer: null,
             }
@@ -44,7 +59,7 @@
              *  WebRTC Functions and Callbacks
              */
             addChatChannel(id) {
-                this.peer = this.peers[id]
+                this.peer = this.getPeer(id)
                 this.$emit('create-data-channel', {
                     peerId: id,
                     channel: 'chatChannel',
@@ -77,7 +92,7 @@
                     } catch(e) {
                         this.queueMessage(response)
                     }
-                    this.appendMessage('peer', '#chat-log', message)
+                    this.appendMessage('peer', message)
                 } else {
                     this.handleResponse(message)
                 }
@@ -109,14 +124,17 @@
                     nickname: this.self.me.name
                 }
                 if (message.text === '') return
-                this.appendMessage('self', '#chat-log', message)
-                for (let id in this.peers) {
-                    this.sendMessage(id, message)
-                }
+                this.appendMessage('self', message)
+                this.peers.forEach(peer => {
+                    this.sendMessage(peer, message)
+                })
+                // for (let id in this.peers) {
+                //     this.sendMessage(id, message)
+                // }
                 input.value = ''
             },
-            sendMessage(id, message) {
-                const peer = this.peers[id]
+            sendMessage(peer, message) {
+                //const peer = this.getPeer(id)
                 if (peer.chatChannel && peer.chatChannel.readyState === 'open') {
                     try {
                         peer.chatChannel.send(JSON.stringify(message))
@@ -128,34 +146,16 @@
                     this.queueMessage(message)
                 }
             },
-            appendMessage(sender, log_element, message, image) {
-                const log = document.querySelector(log_element)
-                const li = document.createElement('li')
-                li.className = sender
-                li.dataset.timestamp = message.timestamp
-
-                const from = document.createElement('span')
-                from.innerText = `${message.nickname} : `
-                li.appendChild(from)
-
-                if (image) {
-                    const img = document.createElement('img')
-                    img.src = URL.createObjectURL(image)
-                    img.onload = () => {
-                        URL.revokeObjectURL(this.src)
-                        this.scrollToEnd(log)
-                    }
-                    li.classList.add('img')
-                    li.appendChild(img)
-                } else {
-                    const text = document.createElement('span')
-                    text.innerText = message.text
-                    li.appendChild(text)
-                }
-                log.appendChild(li)
-                this.scrollToEnd(log)
+            appendMessage(sender, message, image) {
+                this.messages.push({
+                    sender,
+                    message,
+                    image
+                })
+                this.scrollToEnd()
             },
-            scrollToEnd(el) {
+            scrollToEnd() {
+                const el = this.$refs['chat-log']
                 if (el.scrollTo) {
                     el.scrollTo({
                         top: el.scrollHeight,
@@ -182,90 +182,92 @@
                 input.click()
             },
             handleImageInput(event) {
-                event.preventDefault();
-                const image = event.target.files[0];
+                event.preventDefault()
+                const image = event.target.files[0]
                 const metadata = {
                     name: image.name,
+                    nickname: this.self.me.name,
                     size: image.size,
                     timestamp: Date.now(),
                     type: image.type
-                };
-                this.appendMessage('self', '#chat-log', metadata, image);
-                // Remove appended file input element
-                event.target.remove();
-                // Send or queue the file
-                for (let id in this.peers) {
-                    this.sendImage(id, metadata, image);
                 }
+                this.appendMessage('self',  metadata, image)
+                // Remove appended file input element
+                event.target.remove()
+                // Send or queue the file
+                this.peers.forEach(peer => {
+                    this.sendImage(peer, metadata, image)
+                })
             },
-            sendImage(id, metadata, image) {
-                const peer = this.peers[id];
+            sendImage(peer, metadata, image) {
                 if (peer.connection.connectionState === 'connected') {
-                    this.sendFile(peer, 'image-', metadata, image);
+                    this.sendFile(peer, 'image-', metadata, image)
                 } else {
-                    this.queueMessage({ metadata: metadata, file: image });
+                    this.queueMessage({ metadata: metadata, file: image })
                 }
             },
             sendFile(peer, prefix, metadata, file) {
-                const dc = peer.connection.createDataChannel(`${prefix}${metadata.name}`);
+                const dc = peer.connection.createDataChannel(`${prefix}${metadata.name}`)
                 const chunk = 8 * 1024; // 8K chunks
                 dc.onopen = async () => {
                     if (!peer.features ||
                         (this.self.features.binaryType !== peer.features.binaryType)) {
-                        dc.binaryType = 'arraybuffer';
+                        dc.binaryType = 'arraybuffer'
                     }
                     // Prepare data according to the binaryType in use
-                    const data = dc.binaryType === 'blob' ? file : await file.arrayBuffer();
+                    const data = dc.binaryType === 'blob' ? file : await file.arrayBuffer()
                     // Send the metadata
-                    dc.send(JSON.stringify(metadata));
+                    dc.send(JSON.stringify(metadata))
                     // Send the prepared data in chunks
                     for (let i = 0; i < metadata.size; i += chunk) {
-                        dc.send(data.slice(i, i + chunk));
+                        dc.send(data.slice(i, i + chunk))
                     }
                 }
                 dc.onmessage = ({ data }) => {
                     // Sending side will only ever receive a response
-                    this.handleResponse(JSON.parse(data));
-                    dc.close();
+                    this.handleResponse(JSON.parse(data))
+                    dc.close()
                 }
             },
             receiveFile(dc) {
-                const chunks = [];
-                let metadata;
-                let bytesReceived = 0;
+                const chunks = []
+                let metadata
+                let bytesReceived = 0
                 dc.onmessage = ({ data }) => {
                     // Receive the metadata
                     if (typeof data === 'string' && data.startsWith('{')) {
-                        metadata = JSON.parse(data);
+                        metadata = JSON.parse(data)
                     } else {
                         // Receive and squirrel away chunks...
-                        bytesReceived += data.size ? data.size : data.byteLength;
-                        chunks.push(data);
+                        bytesReceived += data.size ? data.size : data.byteLength
+                        chunks.push(data)
                         // ...until the bytes received equal the file size
                         if (bytesReceived === metadata.size) {
-                            const image = new Blob(chunks, { type: metadata.type });
+                            const image = new Blob(chunks, { type: metadata.type })
                             const response = {
                                 id: metadata.timestamp,
                                 timestamp: Date.now()
-                            };
-                            this.appendMessage('peer', '#chat-log', metadata, image);
+                            }
+                            this.appendMessage('peer', metadata, image)
                             // Send an acknowledgement
                             try {
-                                dc.send(JSON.stringify(response));
+                                dc.send(JSON.stringify(response))
                             } catch(e) {
-                                this.queueMessage(response);
+                                this.queueMessage(response)
                             }
                         }
                     }
                 };
             },
             handleResponse(response) {
-                const item = document.querySelector(`#chat-log *[data-timestamp="${response.id}"]`);
-                if (response.timestamp - response.id > 1000) {
-                    item.classList.add('received', 'delayed');
-                } else {
-                    item.classList.add('received');
-                }
+                setTimeout(() => {
+                    const item = document.querySelector(`#chat-log *[data-timestamp="${response.id}"]`)
+                    if (response.timestamp - response.id > 1000) {
+                        item.classList.add('received', 'delayed')
+                    } else {
+                        item.classList.add('received')
+                    }
+                },500)
             },
         }
     }
