@@ -211,7 +211,9 @@
             handleRtcPeerTrack(id) {
                 return ({ track, streams: [stream] }) => {
                     console.log(`Attempt to display media from peer ID: ${id}`)
-                    this.eventBus.$emit('socializer-handle-rtc-peer-track', id, stream)
+                    setTimeout(() => {
+                        this.eventBus.$emit('socializer-handle-rtc-peer-track', id, stream)
+                    }, this.timer)
                 }
             },
 

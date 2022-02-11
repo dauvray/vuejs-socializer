@@ -46,7 +46,9 @@
             }
         },
         data() {
-          return {}
+          return {
+              isStreaming: false,
+          }
         },
         created() {
             if(this.selector != 'self') {
@@ -74,6 +76,10 @@
                 let video
                 video = this.$refs.video
                 video.srcObject = stream
+                video.onloadedmetadata = (e) => {
+                    video.play()
+                    this.isStreaming = stream ? true : false
+                }
             },
             establishCallFeatures(id) {
                 console.log(`Establish webcam features for ${id}`)
@@ -90,7 +96,7 @@
             },
             handleRTCPeerTRack(id, stream) {
                 console.log(`RTC Peer track from ${id}`)
-                if(this.peer && this.peer.id == id ){
+                if(this.peer && this.peer.id == id && !this.isStreaming){
                     this.displayStream(stream)
                 }
             },

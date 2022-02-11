@@ -32,7 +32,7 @@
         },
         props: {
             peers: {
-                type: Object,
+                type: Array,
                 required: true,
             },
             self: {
@@ -128,13 +128,9 @@
                 this.peers.forEach(peer => {
                     this.sendMessage(peer, message)
                 })
-                // for (let id in this.peers) {
-                //     this.sendMessage(id, message)
-                // }
                 input.value = ''
             },
             sendMessage(peer, message) {
-                //const peer = this.getPeer(id)
                 if (peer.chatChannel && peer.chatChannel.readyState === 'open') {
                     try {
                         peer.chatChannel.send(JSON.stringify(message))
