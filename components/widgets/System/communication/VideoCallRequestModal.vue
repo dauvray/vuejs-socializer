@@ -1,5 +1,7 @@
 <template>
     <div>
+        <spinner-widget
+        ></spinner-widget>
         <gravatar-widget
             :user="sender" />
         <button type="button" class="btn btn-danger" @click="onRefuseCall" >Refuser</button>
@@ -14,6 +16,7 @@
     export default {
         name: "VideoCallRequestModal",
         components: {
+            SpinnerWidget: () => import('vuejs-socializer/components/widgets/System/communication/Spinner'),
             ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
             GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
         },

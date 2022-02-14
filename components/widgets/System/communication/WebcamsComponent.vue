@@ -3,21 +3,20 @@
         id="videos"
         ref="videos">
         <h2 class="preserve-access">Streaming Videos</h2>
-        <webcam-widget
+
+        <stream-widget
             selector="self"
             :self="self"
-            :placeholder="placeholder"
             @apply-filter="handleSelfFilterVideo"
-        ></webcam-widget>
+        ></stream-widget>
 
-        <webcam-widget
+        <stream-widget
             v-for="(peer, idx) in peers"
             :key="idx"
             :selector="`peer-${peer.id}`"
             :peer="peer"
             :self="self"
-            :placeholder="placeholder"
-        ></webcam-widget>
+        ></stream-widget>
     </article>
 </template>
 
@@ -27,7 +26,7 @@
         name: "WebcamsComponent",
         inject: ["eventBus"],
         components: {
-           WebcamWidget: () => import('vuejs-socializer/components/widgets/System/communication/webRTCWebcamComponent/WebcamPlayer')
+           StreamWidget: () => import('vuejs-socializer/components/widgets/System/communication/webRTCWebcamComponent/StreamPlayer')
         },
         props: {
             peers: {
@@ -41,9 +40,7 @@
         },
         data() {
             return {
-                placeholder: '/images/vendor/socializer/placeholder.png',
-               // filters: ['grayscale', 'sepia', 'noir', 'psychedelic', 'none'],
-               // peer: null,
+
             }
         },
         created() {
@@ -95,7 +92,7 @@
                 }
 
                 if (label.startsWith('filter-')) {
-                    document.querySelector(`#peer-${obj.id}`).className = label
+                    document.querySelector(`#peer-${obj.id}-video-wrapper`).className = label
                     obj.channel.onopen = () => {
                         obj.channel.close()
                     }

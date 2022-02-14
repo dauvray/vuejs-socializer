@@ -5,13 +5,15 @@
                 v-if="selector == 'self'"
                 @apply-filter="onApplyFilter"
             ></filter-btn>
-            <video
-                ref="video"
-                autoplay
-                muted
-                playsinline
-                :poster="placeholder">
-            </video>
+            <div ref="video-wrapper" :id="`${selector}-video-wrapper`">
+                <video
+                    ref="video"
+                    autoplay
+                    muted
+                    playsinline
+                    :poster="placeholder">
+                </video>
+            </div>
             <figcaption>
                 <img src="" />
                 <span></span>
@@ -21,20 +23,16 @@
 
 <script>
     export default {
-        name: "WebcamPlayer",
+        name: "StreamPlayer",
         inject: ["eventBus"],
         components: {
-            FilterBtn: () => import('vuejs-socializer/components/widgets/System/communication/webRTCWebcamComponent/WebcamFilterBtn')
+            FilterBtn: () => import('vuejs-socializer/components/widgets/System/communication/webRTCWebcamComponent/WebcamFilterBtn'),
         },
         props: {
             selector: {
                 type: String,
                 required: false,
                 default: 'self'
-            },
-            placeholder: {
-                type: String,
-                required: true
             },
             self: {
                 type: Object,
@@ -48,6 +46,7 @@
         data() {
           return {
               isStreaming: false,
+              placeholder: '/images/vendor/socializer/placeholder.png',
           }
         },
         created() {
@@ -106,9 +105,9 @@
                 }
             },
             onApplyFilter(filter){
-                this.$refs['video'].className = filter
+                this.$refs['video-wrapper'].className = filter
                 this.$emit('apply-filter', filter)
-            }
+            },
         }
     }
 </script>

@@ -42,9 +42,13 @@
 
 <script>
 import {mapActions} from 'vuex'
+import WebRTCMixin from 'vuejs-socializer/components/widgets/System/communication/mixins/WebRTCMixin'
 
 export default {
     name: "VideoBtn",
+    mixins: [
+        WebRTCMixin
+    ],
     components: {
         ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
         WebRtcWrapper: () => import('vuejs-socializer/components/widgets/System/communication/WebRTCWrapper'),
@@ -73,7 +77,7 @@ export default {
                 to: this.user.id,
                 data: {
                     type: 'video_call_invitation',
-                    room: 'ekgm-kojb-sngq' // a dynamiser !!!
+                    room: this.generateRandomAlphaString('-', 4, 4, 4)
                 }}
             )
             .then((notification) => {
