@@ -128,7 +128,8 @@
                 'users/cancelInvitation',
                 'users/acceptInvitation',
                 'users/removeFriend',
-                'users/denyInvitation'
+                'users/denyInvitation',
+                'users/updateCover',
             ]),
             setUser(user) {
                 this['users/setUser'](this.user)
@@ -142,21 +143,8 @@
             onSaveModalChanges() {
                 let formData = new FormData()
                 formData.append('file', this.file )
-
-                // is in vuejs-estarter framework ?
-                if(typeof this.$estarterSettings === 'undefined') {
-                    axios.post('/update-cover', formData)
-                        .then((response) => {
-                            this.element = response.data
-                        })
-                        .catch((error) => {
-                            this.eventBus.$emit("httpError", 'Fichier non valide')
-                        });
-                } else {
-                    this.$emit('onCroppedCover', this.file)
-                }
-
-                $('#changecover').modal('hide')
+                this['users/updateCover'](formData)
+                this.$emit('onCroppedCover', this.file)
             },
             onCroppedAvatar(file) {
                 this.$emit('onCroppedAvatar', file)

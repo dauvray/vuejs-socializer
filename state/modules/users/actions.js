@@ -12,6 +12,12 @@ export default {
         let response = await RestDataSourcesMixin.methods.requestApi('/get-friend-users')
         commit('setPaginatedUsers', response)
     },
+    updateCover({commit}, formData) {
+        RestDataSourcesMixin.methods.requestApi('/update-cover', 'post', formData)
+        .then( user => {
+            commit('setUser', user)
+        })
+    },
     async addFriend({commit}, user_id) {
         let response = await RestDataSourcesMixin.methods.requestApi(
             `/add-friend/${user_id}`,

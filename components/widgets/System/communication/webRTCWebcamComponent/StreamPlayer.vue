@@ -75,7 +75,7 @@
                 let video
                 video = this.$refs.video
                 video.srcObject = stream
-                video.onloadedmetadata = (e) => {
+                video.oncanplay = (e) => {
                     video.play()
                     this.isStreaming = stream ? true : false
                 }

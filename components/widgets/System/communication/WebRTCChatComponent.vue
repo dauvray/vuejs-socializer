@@ -9,12 +9,26 @@
                 @scroll-to-end="scrollToEnd"
             ></message-widget>
         </ol>
-        <form id="chat-form" action="#null" v-on:submit.prevent="handleMessageForm">
-            <label for="chat-msg" class="preserve-access">Compose Message</label>
-            <input type="text" id="chat-msg" name="chat-msg" autocomplete="off" />
-            <label for="chat-img-btn" class="preserve-access" >Send Image</label>
-            <button type="button" id="chat-img-btn" @click="handleImageButton">Image</button>
-            <button type="submit" id="chat-btn">Send</button>
+        <form id="chat-form" action="#null">
+            <label for="chat-msg" class="preserve-access">Ecrire un Message</label>
+            <input
+                v-model="message"
+                type="text"
+                id="chat-msg"
+                name="chat-msg"
+                autocomplete="off" />
+            <label for="chat-img-btn" class="preserve-access" >Envoyer Image</label>
+            <upload-button
+                accept="'.gif, .jpg, .jpeg, .png'"
+                btn-label="Image"
+                btn-icon="lar la-image"
+                @selected-file="handleImageInput"
+            ></upload-button>
+            <button
+                type="button"
+                id="chat-btn"
+                @click="handleMessageForm"
+            >Envoyer</button>
         </form>
     </aside>
 </template>
@@ -28,7 +42,8 @@
             WebRTCMixin
         ],
         components: {
-          MessageWidget: () => import('vuejs-socializer/components/widgets/System/communication/webRTCChatComponent/Message')
+          MessageWidget: () => import('vuejs-socializer/components/widgets/System/communication/webRTCChatComponent/Message'),
+          UploadButton: () => import('vuejs-estarter/components/widgets/form/fields/UploadComponent')
         },
         props: {
             peers: {
@@ -42,14 +57,25 @@
         },
         data() {
             return {
+                chatChannelID: 50,
+                message: '',
                 messages: [],
                 messageQueue: [],
                 peer: null,
             }
         },
         created() {
+            /**
+             *  Global events
+             */
+            // Declare a new webrtc feature
             this.eventBus.$on('socializer-establish-features', this.addChatChannel)
+            // Catch RTC data channels
             this.eventBus.$on('socializer-handle-rtc-data-channel', this.handleRTCDataChannel)
+
+            /**
+             *  specific component events
+             */
             this.eventBus.$on('socializer-dtc-onmessage', this.onMessage)
             this.eventBus.$on('socializer-dtc-onclose', this.onClose)
             this.eventBus.$on('socializer-dtc-onopen', this.onOpen)
@@ -66,7 +92,7 @@
                     label: 'text chat',
                     config: {
                         negotiated: true,
-                        id: 50
+                        id: this.chatChannelID
                     },
                     onmessage: (event) => {this.eventBus.$emit('socializer-dtc-onmessage', event)},
                     onclose: (event) => {this.eventBus.$emit('socializer-dtc-onclose', event)},
@@ -115,11 +141,9 @@
              *  Component functions
              */
             // Chat
-            handleMessageForm(event) {
-                event.preventDefault()
-                const input = document.querySelector('#chat-msg')
+            handleMessageForm() {
                 const message = {
-                    text: input.value,
+                    text: this.message, //input.value,
                     timestamp: Date.now(),
                     nickname: this.self.me.name
                 }
@@ -128,7 +152,7 @@
                 this.peers.forEach(peer => {
                     this.sendMessage(peer, message)
                 })
-                input.value = ''
+                this.message = ''
             },
             sendMessage(peer, message) {
                 if (peer.chatChannel && peer.chatChannel.readyState === 'open') {
@@ -165,21 +189,8 @@
                 this.messageQueue.push(message)
             },
             // Image
-            handleImageButton(event) {
-                let input = document.querySelector('input.temp')
-                input = input ? input : document.createElement('input')
-                input.className = 'temp'
-                input.type = 'file'
-                input.accept = '.gif, .jpg, .jpeg, .png'
-                input.setAttribute('aria-hidden', true)
-                // Safari/iOS requires appending the file input to the DOM
-                document.querySelector('#chat-form').appendChild(input)
-                input.addEventListener('change', this.handleImageInput)
-                input.click()
-            },
-            handleImageInput(event) {
-                event.preventDefault()
-                const image = event.target.files[0]
+            handleImageInput(file) {
+                const image = file
                 const metadata = {
                     name: image.name,
                     nickname: this.self.me.name,
@@ -188,8 +199,6 @@
                     type: image.type
                 }
                 this.appendMessage('self',  metadata, image)
-                // Remove appended file input element
-                event.target.remove()
                 // Send or queue the file
                 this.peers.forEach(peer => {
                     this.sendImage(peer, metadata, image)

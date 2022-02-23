@@ -26,6 +26,7 @@
 
 <script>
     'use strict'
+    import {mapGetters} from 'vuex'
 
     export default {
         name: "WebRTCWrapper",
@@ -55,12 +56,11 @@
             }
         },
         created() {
-            this.eventBus.$on('here-i-am', (user) => {this.self.me = user})
             this.namespace = this.notification.notification.data.room
             this.sc = io.connect(process.env.MIX_NODEJS_SERVER + '/' + this.namespace, { autoConnect: false })
-            this.eventBus.$emit('who-am-i')
         },
         mounted() {
+            this.self.me = this.user
             setTimeout(() => {
                 this.joinCall()
                 this.registerScCallbacks()
@@ -68,6 +68,11 @@
         },
         beforeDestroy() {
             this.leaveCall()
+        },
+        computed: {
+            ...mapGetters({
+                user: 'me/getMe',
+            })
         },
         methods: {
             onHideModal() {

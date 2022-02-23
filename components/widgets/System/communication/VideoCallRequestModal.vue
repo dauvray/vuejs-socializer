@@ -26,10 +26,21 @@
                 required: true,
             }
         },
+        data() {
+           return {
+               audio: null
+           }
+        },
         computed: {
             sender: function() {
                 return this.notification.notification.from
             }
+        },
+        created() {
+            this.audio = new Audio('/vendor/socializer/phone-ring.mp3')
+        },
+        mounted() {
+            this.audio.play()
         },
         methods: {
             ...mapActions([
@@ -38,13 +49,23 @@
             onHideModal() {
                 this.$emit('hide-modal')
             },
+            stopAudio() {
+                this.audio.pause()
+                this.audio.currentTime = 0
+                this.audio.src = ''
+
+                this.audio.load()
+                this.audio = null
+            },
             onRefuseCall() {
+                this.stopAudio()
                 RestDataSourcesMixin.methods.requestApi(`/refuse-video-call/${this.notification.id}`)
                 .then(resp => {
                     this.onHideModal()
                 })
             },
             onAcceptCall() {
+                this.stopAudio()
                 this['notifications/deleteNotification'](this.notification.id)
                 .then(() => {
                     this.$emit('accept-call')
