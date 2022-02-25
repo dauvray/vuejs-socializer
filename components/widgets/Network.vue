@@ -2,6 +2,7 @@
     <article>
         <div class="d-flex">
             <h1 class="flex-grow-1">{{network.name}}</h1>
+            <small>{{network.type}}</small>
             <follow-button
                 :network="network"
             ></follow-button>
