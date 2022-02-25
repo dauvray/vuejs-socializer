@@ -1,6 +1,10 @@
 import {RestDataSourcesMixin} from 'vuejs-estarter/mixins/RestDataSourcesMixin'
 
 export default {
+    async loadSocializerMe({commit}) {
+        let response = await RestDataSourcesMixin.methods.requestApi('/get-socializer-user-data')
+        commit('me/composeMe', response.user, { root: true })
+    },
     setUser({commit}, user) {
         commit('setUser', user)
     },
@@ -8,8 +12,12 @@ export default {
         let response = await RestDataSourcesMixin.methods.requestApi('/get-network-users')
         commit('setPaginatedUsers', response)
     },
-    async loadFriendUsers({commit}) {
-        let response = await RestDataSourcesMixin.methods.requestApi('/get-friend-users')
+    async loadFriendUsers({commit}, slug = null) {
+        let url = '/get-friend-users'
+        if(slug) {
+            url += `/${slug}`
+        }
+        let response = await RestDataSourcesMixin.methods.requestApi(url)
         commit('setPaginatedUsers', response)
     },
     updateCover({commit}, formData) {

@@ -3,7 +3,7 @@
         <div class="card">
             <div class="card-body">
                 <post-modal
-                    :user="user"
+                    :item="user"
                     :type="type"
                 ></post-modal>
                 <div class="feed-wrapper">

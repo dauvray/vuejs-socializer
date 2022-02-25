@@ -6,7 +6,19 @@ export default {
     },
     async publishPost({commit}, post) {
 
-        const url = post.type == 'feed' ? '/publish-post' : '/publish-user-wall-post'
+        let url
+
+        switch(post.type) {
+            case 'feed':
+                url = '/publish-post'
+                break
+            case 'wall':
+                url = '/publish-user-wall-post'
+                break
+            case 'network':
+                url = '/publish-network-wall-post'
+                break
+        }
 
         let response = await RestDataSourcesMixin.methods.requestApi(
             url,

@@ -1,6 +1,5 @@
 <template>
     <div>
-        <notifications-widget></notifications-widget>
         <div v-for="(user, idx) in users"
         class="card mb-2"
         :key="idx">
@@ -38,7 +37,6 @@ import {mapActions, mapGetters} from 'vuex'
 export default {
     name: 'UsersList',
     components: {
-        NotificationsWidget: () => import('vuejs-socializer/components/widgets/Notifications'),
         PaginationWidget: () => import('vuejs-estarter/components/widgets/Pagination'),
         GravatarStatus: () => import('vuejs-estarter/components/widgets/GravatarStatus'),
         AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),

@@ -40,6 +40,7 @@
         },
         data() {
             return {
+                userInitialized: false,
                 showModal: false,
                 currentModalComponent: null,
                 currentNotification: null,
@@ -49,9 +50,16 @@
             notifications: function (val) {
                 this.checkNotifications()
             },
+            me: function(user) {
+                if(user.hasOwnProperty('id') && !this.userInitialized) {
+                    this.userInitialized = true
+                    this['users/loadSocializerMe']()
+                }
+            }
         },
         computed: {
             ...mapGetters({
+                me: 'me/getMe',
                 notifications: 'notifications/getNotifications',
             }),
         },
@@ -59,6 +67,7 @@
             ...mapActions([
                 'notifications/pushNotification',
                 'notifications/deleteNotification',
+                'users/loadSocializerMe'
             ]),
             onShowModal() {
                 this.showModal = true

@@ -18,7 +18,7 @@
             </template>
             <template #body>
                 <author-widget
-                    :author="user"
+                    :author="item"
                     size="small"
                 ></author-widget>
                 <post-form
@@ -46,7 +46,7 @@
             AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),
         },
         props: {
-            user: {
+            item: {
                 type: Object,
                 required: true,
             },
@@ -82,7 +82,7 @@
                 this['posts/publishPost']({
                     target: this.postTarget,
                     postContent: this.postContent,
-                    user_id: this.user.id,
+                    item_id: this.item.id,
                     type: this.type
                 }).then(() => {
                     this.resetAll()
