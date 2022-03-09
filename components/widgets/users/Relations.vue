@@ -1,16 +1,27 @@
 <template>
-  <div>
-      <h3>Relations : {{total}}</h3>
-        <author-widget
-            v-for="(relation, idx) in relations"
-            :key="`relation-${idx}`"
-            :author="relation"
-            :profileurl="profileurl"
-        ></author-widget>
-        <pagination-widget
-          :items="relations"
-          @loadPage="onLoadPage"
-        ></pagination-widget>
+  <div class="card">
+      <div class="card-header">
+          <h3>Relations</h3>
+          <small>{{total}} relations</small>
+      </div>
+      <div class="card-body">
+          <ul class="list-group">
+              <li v-for="(relation, idx) in relations"
+                  class="list-group-item">
+                  <author-widget
+                      :key="`relation-${idx}`"
+                      :author="relation"
+                      :profileurl="profileurl"
+                  ></author-widget>
+              </li>
+          </ul>
+      </div>
+      <div class="card-footer">
+          <pagination-widget
+              :items="relations"
+              @loadPage="onLoadPage"
+          ></pagination-widget>
+      </div>
   </div>
 </template>
 
@@ -19,7 +30,7 @@
     export default {
         name: "Relations",
         components: {
-            AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),
+            AuthorWidget: () => import('vuejs-estarter/components/widgets/Author'),
             PaginationWidget: () => import('vuejs-estarter/components/widgets/Pagination'),
         },
         props: {

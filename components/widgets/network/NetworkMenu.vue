@@ -2,16 +2,17 @@
     <ul class="nav nav-pills">
         <li class="nav-item">
             <a class="nav-link"
+               :class="{active : CurrentComponent == 'WallComponent'}"
+               :href="void(0)"
+               @click="onSelectedMenu('WallComponent')"
+            >Mur</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
                :class="{active : CurrentComponent == 'AboutComponent'}"
                :href="void(0)"
                @click="onSelectedMenu('AboutComponent')"
             >A propos</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link"
-               :href="void(0)"
-               @click="onSelectedMenu('WallComponent')"
-            >Mur</a>
         </li>
         <li class="nav-item">
             <a class="nav-link"

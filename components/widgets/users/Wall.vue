@@ -1,9 +1,10 @@
 <template>
     <article id="socializer-wall" class="row">
-        <section class="col-12">
+        <section class="col-12 mb-3">
             <cover-user
                 size="medium"
                 :user="user"
+                :webrtc="webrtc"
                 :editroute="editroute"
                 :editable="isEditable"
             ></cover-user>
@@ -71,6 +72,11 @@
             },
             logged: {
                 type: Boolean,
+                default: false
+            },
+            webrtc: {
+                type: Boolean,
+                required: false,
                 default: false
             },
             canbecommented: {

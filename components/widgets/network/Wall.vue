@@ -4,7 +4,7 @@
             :feed="{data:[], links:{}, meta:{}}"
             type="network"
             :user="network"
-            :logged="false"
+            :logged="true"
             :canbecommented="canbecommented"
             :canberated="canberated"
             :canbeliked="canbeliked"

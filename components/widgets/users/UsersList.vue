@@ -12,6 +12,7 @@
                 <users-communication
                     v-if="!user.is_me"
                     :user="user"
+                    :webrtc="webrtc"
                 ></users-communication>
                 <users-btn
                     :user="user"
@@ -38,9 +39,7 @@ export default {
     name: 'UsersList',
     components: {
         PaginationWidget: () => import('vuejs-estarter/components/widgets/Pagination'),
-        GravatarStatus: () => import('vuejs-estarter/components/widgets/GravatarStatus'),
-        AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),
-        UserLink: () => import('vuejs-eblogger/components/widgets/links/UserLink'),
+        AuthorWidget: () => import('vuejs-estarter/components/widgets/Author'),
         UsersBtn: () => import('./UsersBtn'),
         UsersCommunication: () => import('vuejs-socializer/components/widgets/users/UsersCommunication'),
     },
@@ -53,6 +52,11 @@ export default {
             type: String,
             required: false,
             default: 'allNetworkUsers'
+        },
+        webrtc: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     data() {

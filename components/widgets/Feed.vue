@@ -24,6 +24,7 @@
                         @submitComment="onSubmitComment"
                         @comment-deleted="onCommentDeleted"
                         @post-deleted="onPostDeleted"
+                        @post-shared="onPostShared"
                     ></post-card>
                     <post-pagination
                         :items="items"
@@ -118,7 +119,8 @@ export default {
             'posts/loadPosts',
             'posts/sendComment',
             'posts/deleteComment',
-            'posts/deletePost'
+            'posts/deletePost',
+            'posts/sharePost',
         ]),
         setPostList(feed) {
             this['posts/setPostList'](feed)
@@ -134,6 +136,9 @@ export default {
         },
         onPostDeleted(data) {
             this['posts/deletePost'](data)
+        },
+        onPostShared(data) {
+            this['posts/sharePost'](data)
         }
     }
 }

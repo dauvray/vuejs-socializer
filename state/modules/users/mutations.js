@@ -37,9 +37,11 @@ export default {
                 }
             })
         } else {
-            state.user.sendedfriendRequests = false
-            state.user.receivedfriendRequests = false
-            state.user.friends = true
+            if(state.user) {
+                state.user.sendedfriendRequests = false
+                state.user.receivedfriendRequests = false
+                state.user.friends = true
+            }
         }
     },
     denyInvitation(state, user_id) {
@@ -50,7 +52,9 @@ export default {
                 }
             })
         } else {
-            state.user = null
+            if(state.user) {
+                state.user = null
+            }
         }
     },
 }

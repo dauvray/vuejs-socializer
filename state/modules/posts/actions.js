@@ -76,5 +76,18 @@ export default {
         ).then(response => {
             commit('deletePost', data)
         })
+    },
+    sharePost({commit},data) {
+        RestDataSourcesMixin.methods.requestApi(
+            '/share-post',
+            'post',
+            data,
+            {
+                err: 'Partage impossible',
+                msg: 'Partage réussi'
+            }
+        ).then(response => {
+          //
+        })
     }
 }

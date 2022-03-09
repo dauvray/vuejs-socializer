@@ -43,7 +43,7 @@
         components: {
             PostForm: () => import('vuejs-socializer/components/widgets/post/PostForm'),
             ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
-            AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),
+            AuthorWidget: () => import('vuejs-estarter/components/widgets/Author'),
         },
         props: {
             item: {

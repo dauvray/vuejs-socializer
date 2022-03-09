@@ -1,6 +1,13 @@
 <template>
-    <div class="card mt-3 post-wrapper">
-        <div class="card-body post">
+    <div class="card mt-3 post-wrapper bg-secondary">
+        <div v-if="isShared" class="d-flex">
+            <author-widget
+                :author="post.sharer"
+                size="small"
+                :profileurl="profileurl"
+            ></author-widget> à partagé cette publication
+        </div>
+        <div class="card-header align-items-start">
             <author-widget
                 :author="post.author"
                 size="small"
@@ -14,22 +21,32 @@
                 class="post-target"
                 :target="post.target"
             ></post-target>
-            <comment-content
+        </div>
+        <div class="card-body post">
+            <comment-body
                 :item="post"
-            ></comment-content>
-            <tool-bar
-                class="mt-3"
-                :comment="post"
-                :logged="logged"
-                :formvisible="formvisible"
-                :canbeliked="canbeliked"
-                :canbereported="canbereported"
-                :canbedeleted="canbedeleted"
-                :postlikeurl="postlikeurl"
-                :postdislikeurl="postdislikeurl"
-                :postreporturl="postreporturl"
-                @item-deleted="onPostDeleted"
-            ></tool-bar>
+            ></comment-body>
+        </div>
+        <div class="card-footer">
+            <div class="d-flex">
+                <tool-bar
+                    class="mt-3 flex-grow-1"
+                    :comment="post"
+                    :logged="logged"
+                    :formvisible="formvisible"
+                    :canbeliked="canbeliked"
+                    :canbereported="canbereported"
+                    :canbedeleted="canbedeleted"
+                    :postlikeurl="postlikeurl"
+                    :postdislikeurl="postdislikeurl"
+                    :postreporturl="postreporturl"
+                    @item-deleted="onPostDeleted"
+                ></tool-bar>
+                <share-button
+                    v-if="canSharePost"
+                    @share-item="onSharePost"
+                ></share-button>
+            </div>
             <comment-form
                 class="mt-3"
                 v-if="formvisible"
@@ -63,17 +80,19 @@
 </template>
 
 <script>
+    import {mapGetters} from 'vuex'
     export default {
     name: "PostCard",
     inject: ["eventBus"],
     components: {
-        AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),
+        AuthorWidget: () => import('vuejs-estarter/components/widgets/Author'),
         DateHelper: () => import('vuejs-eblogger/components/widgets/DateHelper'),
-        CommentContent: () => import('vuejs-eblogger/components/widgets/Comment/partials/CommentContent'),
+        CommentBody: () => import('vuejs-eblogger/components/widgets/Comment/partials/CommentBody'),
         CommentForm: () => import('vuejs-eblogger/components/widgets/Comment/CommentForm'),
         ToolBar: () => import('vuejs-eblogger/components/widgets/Comment/widgets/ToolBar'),
         PostTarget: () => import('vuejs-socializer/components/widgets/post/PostTarget'),
         CommentList: () => import('vuejs-eblogger/components/widgets/Comment/CommentList'),
+        ShareButton: () => import('vuejs-socializer/components/widgets/post/ShareButton'),
     },
     props: {
         post: {
@@ -115,6 +134,17 @@
             formvisible: false,
         }
     },
+    computed: {
+        ...mapGetters({
+            me: 'me/getMe',
+        }),
+        canSharePost: function() {
+            return this.post.target == 1 && this.me.id != this.post.author.id
+        },
+        isShared: function() {
+            return this.post.sharer
+        }
+    },
     created() {
         this.eventBus.$on("close-comment-form", this.handleCloseReactFrom)
     },
@@ -144,6 +174,12 @@
         },
         onPostDeleted(data) {
             this.$emit('post-deleted', data)
+        },
+        onSharePost() {
+            this.$emit('post-shared', {
+                post_id: this.post.id,
+                user_id: this.me.id
+            })
         }
     }
 }

@@ -1,6 +1,10 @@
 <template>
     <article>
         <div class="d-flex">
+            <gravatar-widget
+                :user="network"
+                path="/storage/networks"
+            ></gravatar-widget>
             <h1 class="flex-grow-1">{{network.name}}</h1>
             <small>{{network.type}}</small>
             <follow-button
@@ -37,6 +41,7 @@
     export default {
         name: "Network",
         components: {
+            GravatarWidget: () => import('vuejs-estarter/components/widgets/Gravatar'),
             AboutComponent: () => import('vuejs-socializer/components/widgets/network/About'),
             UsersComponent: () => import('vuejs-socializer/components/widgets/network/Users'),
             WallComponent: () => import('vuejs-socializer/components/widgets/network/Wall'),
@@ -81,7 +86,7 @@
         },
         data() {
             return {
-                currentComponent: 'AboutComponent',
+                currentComponent: 'WallComponent',
             }
         },
         created() {

@@ -2,12 +2,12 @@
     <div>
         <div class="btn-group btn-group-sm" role="group" aria-label="Communication">
             <video-button
-                v-if="user.is_online"
+                v-if="user.is_online && webrtc"
                 :user="user"
                 @show-modal="onShowModal"
             ></video-button>
             <button
-                v-if="user.is_online"
+                v-if="user.is_online && webrtc"
                 type="button"
                 class="btn btn-primary"
             ><i class="las la-phone"></i></button>
@@ -29,6 +29,11 @@
             user: {
                 type: Object,
                 required: true
+            },
+            webrtc: {
+                type: Boolean,
+                required: false,
+                default: false
             }
         },
         data() {

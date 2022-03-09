@@ -17,7 +17,7 @@
     export default {
         name: "Users",
         components: {
-            AuthorWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Author'),
+            AuthorWidget: () => import('vuejs-estarter/components/widgets/Author'),
         },
         props: {
             network: {

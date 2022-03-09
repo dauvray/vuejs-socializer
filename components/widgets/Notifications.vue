@@ -30,9 +30,12 @@
 
 <script>
     import {mapActions, mapGetters} from 'vuex'
+    import friend_invitation from 'vuejs-socializer/components/widgets/System/notifications/FriendInvitationNotification'
+    import Vue from "vue"
 
     export default {
         name: "Notifications",
+        inject: ["eventBus"],
         components: {
             ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
             VideoCallRequestModal: () => import('vuejs-socializer/components/widgets/System/communication/VideoCallRequestModal'),
@@ -44,6 +47,9 @@
                 showModal: false,
                 currentModalComponent: null,
                 currentNotification: null,
+                availableNotificationsType: [
+                    'friend_invitation'
+                ]
             }
         },
         watch: {
@@ -62,6 +68,9 @@
                 me: 'me/getMe',
                 notifications: 'notifications/getNotifications',
             }),
+        },
+        created() {
+            this.eventBus.$on('format-notification', this.onFormatNotification)
         },
         methods: {
             ...mapActions([
@@ -109,6 +118,33 @@
                 .then(() => {
                     this.currentModalComponent = 'WebRtcWrapper'
                 })
+            },
+            // user activity notifications
+            onFormatNotification(notification, profileurl) {
+                if(this.availableNotificationsType.includes(notification.notification.data.type)) {
+                    this.formatNotification(notification, profileurl)
+                }
+            },
+            formatNotification(notification, profileurl) {
+
+                // use type to define current notification card component
+                let CardNotification
+
+                switch(notification.notification.data.type) {
+                    case 'friend_invitation':
+                        CardNotification = friend_invitation
+                        break
+                }
+
+                let cardNotif = new Vue({
+                    ...CardNotification,
+                    parent: this,
+                    propsData: {
+                        notification: notification,
+                        profileurl: profileurl,
+                    }
+                }).$mount()
+                this.eventBus.$emit('receive-formated-notification', cardNotif.$el)
             }
         }
     }

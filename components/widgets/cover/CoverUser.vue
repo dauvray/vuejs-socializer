@@ -13,7 +13,6 @@
             size="medium"
             :user="user"
         ></gravatar-status>
-
         <div class="mr-2 pb-1 bg-opacity-dark-3">
             <h2 class="text-white m-0 p-2">{{ item.name }}</h2>
             <i class="text-white p-2">{{ item.function }}</i>
@@ -25,6 +24,7 @@
         <users-communication
             v-if="!user.is_me"
             :user="item"
+            :webrtc="webrtc"
         ></users-communication>
         <users-btn v-if="!user.is_me"
             :user="item"
@@ -69,7 +69,7 @@
         inject: ["eventBus"],
         components: {
             AvatarCropper: () => import('vuejs-estarter/components/widgets/AvatarCropper'),
-            GravatarStatus: () => import('vuejs-estarter/components/widgets/GravatarStatus'),
+            GravatarStatus: () => import('vuejs-estarter/components/widgets/Gravatar'),
             ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
             CropperWidget: () => import('vuejs-estarter/components/widgets/CropperWidget'),
             UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn'),
@@ -90,6 +90,11 @@
             },
             editable: {
                 type: Boolean,
+                default: false
+            },
+            webrtc: {
+                type: Boolean,
+                required: false,
                 default: false
             },
         },
