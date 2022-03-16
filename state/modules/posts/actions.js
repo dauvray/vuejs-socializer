@@ -1,13 +1,12 @@
 import {RestDataSourcesMixin} from 'vuejs-estarter/mixins/RestDataSourcesMixin'
+import { paginatedTemplate } from 'vuejs-eblogger/components/helpers/utils'
 
 export default {
     setPostList({commit}, posts){
         commit('setPostList', posts)
     },
     async publishPost({commit}, post) {
-
         let url
-
         switch(post.type) {
             case 'feed':
                 url = '/publish-post'
@@ -19,7 +18,6 @@ export default {
                 url = '/publish-network-wall-post'
                 break
         }
-
         let response = await RestDataSourcesMixin.methods.requestApi(
             url,
             'post',
@@ -32,6 +30,8 @@ export default {
         commit('setPostList', response)
     },
     async loadPosts({commit}, url) {
+        // reset
+        commit('setPostList', {...paginatedTemplate()})
         let response = await RestDataSourcesMixin.methods.requestApi(url)
         commit('setPostList', response)
     },
@@ -49,19 +49,6 @@ export default {
                 newComment: response,
                 postId: data.postId
             })
-        })
-    },
-    deleteComment({commit}, data) {
-        RestDataSourcesMixin.methods.requestApi(
-            '/delete-content-type',
-            'post',
-            data,
-            {
-                err: 'Suppression impossible',
-                msg: 'Contenu supprimé'
-            }
-        ).then(response => {
-            commit('deleteComment', data)
         })
     },
     deletePost({commit},data) {
@@ -89,5 +76,5 @@ export default {
         ).then(response => {
           //
         })
-    }
+    },
 }

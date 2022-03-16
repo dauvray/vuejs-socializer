@@ -6,6 +6,12 @@
                 :profileurl="profileurl"
                 size="small"
             ></author-widget>
+            <button
+                type="button"
+                class="btn btn-link"
+                @click="onDeleteNotification">
+                <i class="lar la-trash-alt"></i>
+            </button>
             <div>Vous a envoyé une demande en ami</div>
             <date-helper
                 :date="notification.created_at"
@@ -21,35 +27,18 @@
 </template>
 
 <script>
-    import {mapActions, mapGetters} from "vuex";
+    import {mapActions, mapGetters} from "vuex"
+    import NotificationMixin from "vuejs-estarter/mixins/NotificationMixin"
 
     export default {
         name: "FriendInvitationNotification",
+        mixins: [
+            NotificationMixin
+        ],
         components: {
-            AuthorWidget: () => import('vuejs-estarter/components/widgets/Author'),
-            DateHelper: () => import('vuejs-eblogger/components/widgets/DateHelper'),
-            UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn'),
-        },
-        props: {
-            notification: {
-                type: Object,
-                required: true
-            },
-            profileurl: {
-                type: String,
-                required: false,
-                default: ''
-            }
-        },
-        data() {
-            return {
-              isActive: true
-            }
+           UsersBtn: () => import('vuejs-socializer/components/widgets/users/UsersBtn'),
         },
         computed: {
-            ...mapGetters({
-                me: 'me/getMe',
-            }),
             fromUser: function() {
                 let user = {...this.notification.notification.from}
                 user.sendedfriendRequests = false
@@ -81,7 +70,6 @@
             ...mapActions([
                 'users/acceptInvitation',
                 'users/denyInvitation',
-                'notifications/deleteNotification'
             ]),
             onAcceptInvitation(userId) {
                 this['users/acceptInvitation'](userId)
@@ -92,7 +80,7 @@
                 this['users/denyInvitation'](userId)
                 this['notifications/deleteNotification'](this.notification.id)
                 this.isActive = false
-            }
+            },
         }
     }
 </script>

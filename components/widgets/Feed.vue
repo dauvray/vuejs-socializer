@@ -7,7 +7,7 @@
                     :type="type"
                 ></post-modal>
                 <div class="feed-wrapper">
-                    <post-card v-for="(post, idx) in items"
+                    <post-card v-for="(post, idx) in items.data"
                         :key="componentKey + idx"
                         :post="post"
                         :logged="logged"
@@ -28,8 +28,6 @@
                     ></post-card>
                     <post-pagination
                         :items="items"
-                        :links="postLinks"
-                        :meta="postMeta"
                         @loadPage="onLoadPosts"
                     ></post-pagination>
                 </div>
@@ -100,9 +98,7 @@ export default {
     },
     computed: {
         ...mapGetters({
-            items: 'posts/getDataPosts',
-            postLinks: 'posts/getLinksPosts',
-            postMeta: 'posts/getMetaPosts',
+            items: 'posts/getPosts',
         }),
     },
     watch: {
@@ -117,29 +113,29 @@ export default {
         ...mapActions([
             'posts/setPostList',
             'posts/loadPosts',
-            'posts/sendComment',
-            'posts/deleteComment',
             'posts/deletePost',
             'posts/sharePost',
+            'comments/sendComment',
+            'comments/deleteComment',
         ]),
         setPostList(feed) {
             this['posts/setPostList'](feed)
         },
-        onSubmitComment(data) {
-            this['posts/sendComment'](data)
-        },
         onLoadPosts(url) {
             this['posts/loadPosts'](url)
-        },
-        onCommentDeleted(data) {
-            this['posts/deleteComment'](data)
         },
         onPostDeleted(data) {
             this['posts/deletePost'](data)
         },
         onPostShared(data) {
             this['posts/sharePost'](data)
-        }
+        },
+        onCommentDeleted(data) {
+            this['comments/deleteComment'](data)
+        },
+        onSubmitComment(data) {
+            this['comments/sendComment'](data)
+        },
     }
 }
 </script>

@@ -1,11 +1,11 @@
 export default {
-    getDataPosts(state) {
-        return state.data
+    getPosts(state) {
+        return state.paginatedPosts
     },
-    getLinksPosts(state) {
-        return state.links
-    },
-    getMetaPosts(state) {
-        return state.meta
-    },
+    // getLinksPosts(state) {
+    //     return state.paginatedPosts.links
+    // },
+    // getMetaPosts(state) {
+    //     return state.meta
+    // },
 }

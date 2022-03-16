@@ -1,17 +1,25 @@
 <template>
-    <article>
+    <article v-if="active">
         <div class="d-flex">
             <gravatar-widget
+                class="me-3"
                 :user="network"
-                path="/storage/networks"
+                :status="false"
             ></gravatar-widget>
-            <h1 class="flex-grow-1">{{network.name}}</h1>
-            <small>{{network.type}}</small>
+
+            <div class="flex-grow-1">
+                <h1>{{network.name}}</h1>
+                <span class="badge bg-warning text-dark">{{formatNetworkType(network.type)}}</span>
+            </div>
+
             <follow-button
+                v-if="!isOwner"
                 :network="network"
+                @unfollow-network="active=false"
             ></follow-button>
         </div>
         <network-menu
+            class="mt-3 mb-3"
             :current-component="currentComponent"
             @selected-component="onSelectedComponent"
         ></network-menu>
@@ -87,6 +95,17 @@
         data() {
             return {
                 currentComponent: 'WallComponent',
+                active: true
+            }
+        },
+        computed: {
+            ...mapGetters({
+                me: 'me/getMe'
+            }),
+            isOwner: function() {
+                if(this.me.hasOwnProperty('ownedNetworks')){
+                    return this.me.ownedNetworks.includes(this.network.slug)
+                }
             }
         },
         created() {
@@ -98,6 +117,19 @@
             ]),
             onSelectedComponent(component) {
                 this.currentComponent = component
+            },
+            formatNetworkType(type) {
+                switch(type) {
+                    case 'group':
+                        return 'Groupe'
+                        break
+                    case 'page':
+                        return 'Page'
+                        break
+                    case 'salon':
+                        return 'Salon'
+                        break
+                }
             }
         }
     }

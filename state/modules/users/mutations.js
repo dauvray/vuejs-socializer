@@ -2,8 +2,8 @@ export default {
     setUser(state, user) {
         state.user = {...user}
     },
-    setPaginatedUsers(state, paginatedUSers) {
-        state.paginatedUsers = paginatedUSers
+    setPaginatedUsers(state, paginatedUsers) {
+        state.paginatedUsers = paginatedUsers
     },
     addFriend(state, user_id) {
         if(state.paginatedUsers.data.length) {

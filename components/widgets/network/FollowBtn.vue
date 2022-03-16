@@ -13,7 +13,6 @@
             @click="onUnfollowNetwork"
         ><i class="las la-unlink"></i> Se désabonner</button>
     </div>
-
 </template>
 
 <script>
@@ -43,7 +42,17 @@
                 this['networks/followNetwork'](this.network.slug)
             },
             onUnfollowNetwork() {
-                this['networks/unfollowNetwork'](this.network.slug)
+                if(confirm('Souhaitez-vous quitter ce groupe ?')) {
+                    this['networks/unfollowNetwork'](this.network.slug)
+                    .then(() => {
+                        if(this.network.is_private) {
+                            this.$emit('unfollow-network')
+                            setTimeout(() => {
+                                document.location = '/networks'
+                            }, 1000)
+                        }
+                    })
+                }
             }
         }
     }

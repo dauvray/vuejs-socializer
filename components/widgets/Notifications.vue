@@ -30,7 +30,10 @@
 
 <script>
     import {mapActions, mapGetters} from 'vuex'
-    import friend_invitation from 'vuejs-socializer/components/widgets/System/notifications/FriendInvitationNotification'
+    import friend_invitation_notification_card from 'vuejs-socializer/components/widgets/System/notifications/FriendInvitationNotification'
+    import published_on_wall_notification_card from 'vuejs-socializer/components/widgets/System/notifications/PublishedOnWallNotification'
+    import user_network_access_request_notification_card from 'vuejs-socializer/components/widgets/System/notifications/UserAccessNetworkRequestNotification'
+    import user_network_access_accepted_notification_card from 'vuejs-socializer/components/widgets/System/notifications/UserAccessNetworkAcceptedNotification'
     import Vue from "vue"
 
     export default {
@@ -48,7 +51,10 @@
                 currentModalComponent: null,
                 currentNotification: null,
                 availableNotificationsType: [
-                    'friend_invitation'
+                    'friend_invitation',
+                    'published_on_user_wall',
+                    'user_network_access_request',
+                    'user_network_access_accepted',
                 ]
             }
         },
@@ -132,7 +138,16 @@
 
                 switch(notification.notification.data.type) {
                     case 'friend_invitation':
-                        CardNotification = friend_invitation
+                        CardNotification = friend_invitation_notification_card
+                        break
+                    case 'published_on_user_wall':
+                        CardNotification = published_on_wall_notification_card
+                        break
+                    case 'user_network_access_request':
+                        CardNotification = user_network_access_request_notification_card
+                        break
+                    case 'user_network_access_accepted':
+                        CardNotification = user_network_access_accepted_notification_card
                         break
                 }
 

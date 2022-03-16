@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex align-items-end p-3"
+    <div class="d-flex align-items-end p-3 cover-wrapper"
          :style="{backgroundImage: BackgroundImage, backgroundSize: backgroundSize}">
         <avatar-cropper
             v-if="editable"
@@ -9,11 +9,11 @@
         ></avatar-cropper>
         <gravatar-status
             v-else
-            class="float-left pr-2"
+            class="float-left me-3"
             size="medium"
             :user="user"
         ></gravatar-status>
-        <div class="mr-2 pb-1 bg-opacity-dark-3">
+        <div class="me-2 pb-1 bg-opacity-dark-3">
             <h2 class="text-white m-0 p-2">{{ item.name }}</h2>
             <i class="text-white p-2">{{ item.function }}</i>
         </div>
@@ -21,20 +21,20 @@
            @click.prevent="editProfil" href="#">
             <i class="las la-pencil-alt"></i>
         </a>
-        <users-communication
-            v-if="!user.is_me"
-            :user="item"
-            :webrtc="webrtc"
-        ></users-communication>
-        <users-btn v-if="!user.is_me"
-            :user="item"
-            @add-new-friend="onInviteFriend"
-            @cancel-new-invitation="onCancelInvitation"
-            @accept-new-invitation="onAcceptInvitation"
-            @remove-friend="onRemoveFriend"
-            @deny-invitation="onDenyInvitation"
-        ></users-btn>
-        <div class="flex-grow-1">
+        <div class="d-flex flex-grow-1 justify-content-end">
+            <users-communication
+                v-if="!user.is_me"
+                :user="item"
+                :webrtc="webrtc"
+            ></users-communication>
+            <users-btn v-if="!user.is_me"
+                       :user="item"
+                       @add-new-friend="onInviteFriend"
+                       @cancel-new-invitation="onCancelInvitation"
+                       @accept-new-invitation="onAcceptInvitation"
+                       @remove-friend="onRemoveFriend"
+                       @deny-invitation="onDenyInvitation"
+            ></users-btn>
             <modal-widget
                 v-if="editable"
                 target="changecover"
@@ -172,4 +172,10 @@
         }
     }
 </script>
+
+<style scoped>
+    .cover-wrapper {
+        border-radius: 0.25rem;
+    }
+</style>
 

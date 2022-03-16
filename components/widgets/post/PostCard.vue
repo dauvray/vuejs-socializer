@@ -1,5 +1,5 @@
 <template>
-    <div class="card mt-3 post-wrapper bg-secondary">
+    <div :id="`post-${post.id}`" class="card mt-3 post-wrapper bg-secondary">
         <div v-if="isShared" class="d-flex">
             <author-widget
                 :author="post.sharer"
@@ -29,23 +29,29 @@
         </div>
         <div class="card-footer">
             <div class="d-flex">
-                <tool-bar
-                    class="mt-3 flex-grow-1"
-                    :comment="post"
-                    :logged="logged"
-                    :formvisible="formvisible"
-                    :canbeliked="canbeliked"
-                    :canbereported="canbereported"
-                    :canbedeleted="canbedeleted"
-                    :postlikeurl="postlikeurl"
-                    :postdislikeurl="postdislikeurl"
-                    :postreporturl="postreporturl"
-                    @item-deleted="onPostDeleted"
-                ></tool-bar>
-                <share-button
-                    v-if="canSharePost"
-                    @share-item="onSharePost"
-                ></share-button>
+                <div class="d-flex flex-grow-1">
+                    <tool-bar
+                        :comment="post"
+                        :logged="logged"
+                        :formvisible="formvisible"
+                        :canbeliked="canbeliked"
+                        :canbereported="canbereported"
+                        :canbedeleted="canbedeleted"
+                        :postlikeurl="postlikeurl"
+                        :postdislikeurl="postdislikeurl"
+                        :postreporturl="postreporturl"
+                        @item-deleted="onPostDeleted"
+                    ></tool-bar>
+                    <share-button
+                        v-if="canSharePost"
+                        @share-item="onSharePost"
+                    ></share-button>
+                </div>
+                <counter-widget
+                    v-if="totalComments"
+                    :nbcomments="totalComments"
+                    @load-comments="onLoadComments"
+                ></counter-widget>
             </div>
             <comment-form
                 class="mt-3"
@@ -54,15 +60,13 @@
                 :canRate="false"
                 :canberated="canberated"
                 :canbeliked="canbeliked"
-                :parentid="post.id"
                 :logged="logged"
                 @submitComment="onSubmitComment"
             ></comment-form>
             <comment-list
-                v-if="post.comments.data.length"
                 class="comment-list-wrapper"
                 :commentable="post"
-                :comments="post.comments.data"
+                :comments="itemComments.data"
                 :logged="logged"
                 :canberated="canberated"
                 :canbeliked="canbeliked"
@@ -75,12 +79,16 @@
                 @submitComment="onSubmitComment"
                 @item-deleted="onCommentDeleted"
             ></comment-list>
+            <comments-pagination
+                :items="itemComments"
+                @loadPage="onLoadComments"
+            ></comments-pagination>
         </div>
     </div>
 </template>
 
 <script>
-    import {mapGetters} from 'vuex'
+    import {mapActions, mapGetters} from 'vuex'
     export default {
     name: "PostCard",
     inject: ["eventBus"],
@@ -93,6 +101,8 @@
         PostTarget: () => import('vuejs-socializer/components/widgets/post/PostTarget'),
         CommentList: () => import('vuejs-eblogger/components/widgets/Comment/CommentList'),
         ShareButton: () => import('vuejs-socializer/components/widgets/post/ShareButton'),
+        CounterWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Counter'),
+        CommentsPagination: () => import('vuejs-estarter/components/widgets/Pagination'),
     },
     props: {
         post: {
@@ -137,24 +147,46 @@
     computed: {
         ...mapGetters({
             me: 'me/getMe',
+            comments: 'comments/getComments',
+            nbComments: 'comments/getTotalComments',
         }),
         canSharePost: function() {
             return this.post.target == 1 && this.me.id != this.post.author.id
         },
         isShared: function() {
             return this.post.sharer
-        }
+        },
+        itemComments: function() {
+            return this.comments(this.post.key)
+        },
+        totalComments: function() {
+            return this.nbComments(this.post.key)
+        },
     },
     created() {
         this.eventBus.$on("close-comment-form", this.handleCloseReactFrom)
+        this['comments/init'](this.post)
     },
     methods: {
+        ...mapActions([
+            'comments/loadComments',
+            'comments/init'
+        ]),
+        onLoadComments(url = '/get-comments') {
+            this['comments/loadComments']({
+                commentable: this.post,
+                url: url
+            })
+        },
         toggleComments() {
             this.isCommentsVisble = !this.isCommentsVisble
         },
         onSubmitComment(data) {
-            data.parent_id = this.post.id == data.parent_id ? 0 : data.parent_id
-            this.$emit('submitComment', {...data, postId: this.post.id})
+             data.parent_id = this.post.id == data.parent_id ? 0 : data.parent_id
+            this.$emit('submitComment', {
+                commentable: this.post,
+                comment: data
+            })
             this.formvisible = false
         },
         onShowForm() {
@@ -170,7 +202,10 @@
             }
         },
         onCommentDeleted(data) {
-            this.$emit('comment-deleted', {...data, postId: this.post.id})
+            this.$emit('comment-deleted', {
+                commentable: this.post,
+                comment: data
+            })
         },
         onPostDeleted(data) {
             this.$emit('post-deleted', data)
