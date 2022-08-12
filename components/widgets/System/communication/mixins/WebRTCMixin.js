@@ -37,5 +37,31 @@ export default {
                 delete obj[key];
             }
         },
+        // stop both mic and camera
+        stopBothVideoAndAudio(stream) {
+            stream.getTracks().forEach(function(track) {
+                if (track.readyState == 'live') {
+                    track.stop();
+                }
+            });
+        },
+
+        // stop only camera
+        stopVideoOnly(stream) {
+            stream.getTracks().forEach(function(track) {
+                if (track.readyState == 'live' && track.kind === 'video') {
+                    track.stop();
+                }
+            });
+        },
+
+        // stop only mic
+        stopAudioOnly(stream) {
+            stream.getTracks().forEach(function(track) {
+                if (track.readyState == 'live' && track.kind === 'audio') {
+                    track.stop();
+                }
+            });
+        }
     }
 }

@@ -46,7 +46,7 @@
         data() {
           return {
               isStreaming: false,
-              placeholder: '/images/vendor/socializer/placeholder.png',
+              placeholder: '/vendor/socializer/placeholder.png',
           }
         },
         created() {

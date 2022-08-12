@@ -12,9 +12,13 @@
 <script>
     import {RestDataSourcesMixin} from 'vuejs-estarter/mixins/RestDataSourcesMixin'
     import {mapActions} from 'vuex'
+    import WebRTCMixin from './mixins/WebRTCMixin'
 
     export default {
         name: "VideoCallRequestModal",
+        mixins: [
+            WebRTCMixin
+        ],
         components: {
             SpinnerWidget: () => import('vuejs-socializer/components/widgets/System/communication/Spinner'),
             ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
@@ -65,11 +69,25 @@
                 })
             },
             onAcceptCall() {
-                this.stopAudio()
-                this['notifications/deleteNotification'](this.notification.id)
-                .then(() => {
-                    this.$emit('accept-call')
+
+                // check permissions
+                navigator.mediaDevices.getUserMedia({audio: true,video: true})
+                .then(async(stream) => {
+
+                    this.stopBothVideoAndAudio(stream)
+                    
+                    this.stopAudio()
+                    this['notifications/deleteNotification'](this.notification.id)
+                    .then(() => {
+                        this.$emit('accept-call')
+                    })
+
                 })
+                .catch((err) => {
+                    //
+                });
+
+
             }
         }
     }

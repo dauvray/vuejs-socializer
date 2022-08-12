@@ -32,7 +32,7 @@
         name: "WebRTCWrapper",
         inject: ["eventBus"],
         components: {
-            WebcamsComponent: () => import('vuejs-socializer/components/widgets/System/communication/WebcamsComponent'),
+            WebcamsComponent: () => import('vuejs-socializer/components/widgets/System/communication/webRTCWebcamComponent/WebcamsComponent'),
             ChatComponent: () => import('vuejs-socializer/components/widgets/System/communication/WebRTCChatComponent')
         },
         props: {
@@ -58,12 +58,12 @@
         created() {
             this.namespace = this.notification.notification.data.room
             this.sc = io.connect(process.env.MIX_NODEJS_SERVER + '/' + this.namespace, { autoConnect: false })
+            this.registerScCallbacks()
         },
         mounted() {
             this.self.me = this.user
             setTimeout(() => {
                 this.joinCall()
-                this.registerScCallbacks()
             }, this.timer)
         },
         beforeDestroy() {
@@ -134,7 +134,7 @@
                 // all RTCcomponents listens this event to add features
                 setTimeout(() => {
                     this.eventBus.$emit('socializer-establish-features', id)
-                }, 1000)
+                }, this.timer)
             },
             resetPeer(id, idx, preserve = false) {
                 const peer = this.peers[idx]
@@ -175,6 +175,7 @@
                         console.log('Attempting to make an offer...')
                         await peer.connection.setLocalDescription()
                     } catch(e) {
+                        console.log(`Error with Attempting to make an offer, retry : ${e}`)
                         const offer = await peer.connection.createOffer()
                         await peer.connection.setLocalDescription(offer)
                     } finally {
@@ -301,6 +302,7 @@
                         try {
                             await peer.connection.setLocalDescription()
                         } catch(e) {
+                            console.log(`Error : type offer but can not set local description ${e}`)
                             const answer = await peer.connection.createAnswer()
                             await peer.connection.setLocalDescription(answer)
                         } finally {

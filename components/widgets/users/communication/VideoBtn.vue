@@ -73,18 +73,30 @@ export default {
             'notifications/deleteNotification',
         ]),
         onRequestCall() {
-            this['notifications/pushNotification']({
-                to: this.user.id,
-                data: {
-                    type: 'video_call_invitation',
-                    room: this.generateRandomAlphaString('-', 4, 4, 4)
-                }}
-            )
-            .then((notification) => {
-                this.currentModalComponent = 'VideoCallInvitation'
-                this.showModal = true
-                this.sendedNotification = notification
+
+            // check permissions
+            navigator.mediaDevices.getUserMedia({audio: true, video: true})
+            .then((stream) => {
+
+                this.stopBothVideoAndAudio(stream)
+
+                this['notifications/pushNotification']({
+                    to: this.user.id,
+                    data: {
+                        type: 'video_call_invitation',
+                        room: this.generateRandomAlphaString('-', 4, 4, 4)
+                    }
+                })
+                .then((notification) => {
+                    this.currentModalComponent = 'VideoCallInvitation'
+                    this.showModal = true
+                    this.sendedNotification = notification
+                }) 
+
             })
+            .catch((err) => {
+               //
+            });
         },
         onHideModal() {
             this.showModal = false
