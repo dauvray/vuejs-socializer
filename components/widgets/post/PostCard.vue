@@ -46,6 +46,11 @@
                     v-if="canSharePost"
                     @share-item="onSharePost"
                 ></share-button>
+                <counter-widget
+                    v-if="post.comments_count"
+                    :nbcomments="post.comments_count"
+                    @load-comments="onLoadComments"
+                ></counter-widget>
             </div>
             <comment-form
                 class="mt-3"
@@ -59,10 +64,9 @@
                 @submitComment="onSubmitComment"
             ></comment-form>
             <comment-list
-                v-if="post.comments"
                 class="comment-list-wrapper"
                 :commentable="post"
-                :comments="post.comments.data"
+                :comments="itemComments.data"
                 :logged="logged"
                 :canberated="canberated"
                 :canbeliked="canbeliked"
@@ -80,7 +84,7 @@
 </template>
 
 <script>
-    import {mapGetters} from 'vuex'
+    import {mapActions, mapGetters} from 'vuex'
     export default {
     name: "PostCard",
     inject: ["eventBus"],
@@ -93,6 +97,7 @@
         PostTarget: () => import('vuejs-socializer/components/widgets/post/PostTarget'),
         CommentList: () => import('vuejs-eblogger/components/widgets/Comment/CommentList'),
         ShareButton: () => import('vuejs-socializer/components/widgets/post/ShareButton'),
+        CounterWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Counter'),
     },
     props: {
         post: {
@@ -132,29 +137,42 @@
     data() {
         return {
             formvisible: false,
+            commentsLoaded: false,
         }
     },
     computed: {
         ...mapGetters({
             me: 'me/getMe',
+            comments: 'comments/getComments',
         }),
         canSharePost: function() {
             return this.post.target == 1 && this.me.id != this.post.author.id
         },
         isShared: function() {
             return this.post.sharer
+        },
+        itemComments: function() {
+            return this.comments(this.post.key)
         }
     },
     created() {
         this.eventBus.$on("close-comment-form", this.handleCloseReactFrom)
+        this['comments/init'](this.post)
     },
     methods: {
+        ...mapActions([
+            'comments/init',
+            'comments/loadComments',
+        ]),
         toggleComments() {
             this.isCommentsVisble = !this.isCommentsVisble
         },
         onSubmitComment(data) {
             data.parent_id = this.post.id == data.parent_id ? 0 : data.parent_id
-            this.$emit('submitComment', {...data, postId: this.post.id})
+            this.$emit('submitComment', {
+                comment: {...data, postId: this.post.id},
+                commentable: this.post
+                })
             this.formvisible = false
         },
         onShowForm() {
@@ -170,7 +188,10 @@
             }
         },
         onCommentDeleted(data) {
-            this.$emit('comment-deleted', {...data, postId: this.post.id})
+            this.$emit('comment-deleted', {
+                comment: {...data, postId: this.post.id},
+                commentable: this.post
+            })
         },
         onPostDeleted(data) {
             this.$emit('post-deleted', data)
@@ -180,7 +201,15 @@
                 post_id: this.post.id,
                 user_id: this.me.id
             })
-        }
+        },
+        onLoadComments(url = '/get-comments') {
+            this['comments/loadComments']({
+                commentable: this.post,
+                url: url
+            }).then(() => {
+                this.commentsLoaded = true
+            })
+        },
     }
 }
 </script>
