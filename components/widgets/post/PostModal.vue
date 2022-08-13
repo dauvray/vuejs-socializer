@@ -36,7 +36,7 @@
 </template>
 
 <script>
-    import {mapActions, mapGetters} from 'vuex'
+    import {mapGetters} from 'vuex'
 
     export default {
         name: "PostModal",
@@ -69,9 +69,6 @@
             }
         },
         methods: {
-            ...mapActions([
-                'posts/publishPost',
-            ]),
             onChangePostContent(value) {
                 this.postContent = value
             },
@@ -79,14 +76,13 @@
                 this.postTarget = value
             },
             onPublishPost() {
-                this['posts/publishPost']({
+                this.$emit('publish-post', {
                     target: this.postTarget,
                     postContent: this.postContent,
                     item_id: this.item.id,
                     type: this.type
-                }).then(() => {
-                    this.resetAll()
                 })
+                 this.resetAll()
             },
             onShowModal() {
                 this.showModal = true

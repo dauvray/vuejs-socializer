@@ -64,6 +64,7 @@
                 @submitComment="onSubmitComment"
             ></comment-form>
             <comment-list
+                v-if="itemComments"
                 class="comment-list-wrapper"
                 :commentable="post"
                 :comments="itemComments.data"

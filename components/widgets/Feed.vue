@@ -5,6 +5,7 @@
                 <post-modal
                     :item="user"
                     :type="type"
+                    @publish-post="onPublishPost"
                 ></post-modal>
                 <div class="feed-wrapper">
                     <post-card v-for="(post, idx) in items.data"
@@ -115,6 +116,7 @@ export default {
             'posts/loadPosts',
             'posts/deletePost',
             'posts/sharePost',
+            'posts/publishPost',
             'comments/sendComment',
             'comments/deleteComment',
         ]),
@@ -123,6 +125,12 @@ export default {
         },
         onLoadPosts(url) {
             this['posts/loadPosts'](url)
+        },
+        onPublishPost(data) {
+            this['posts/publishPost'](data)
+            .then(() => {
+                this.componentKey++
+            })
         },
         onPostDeleted(data) {
             this['posts/deletePost'](data)

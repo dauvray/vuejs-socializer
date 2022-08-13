@@ -3,7 +3,7 @@ import Vue from 'vue'
 
 export default {
     setPostList(state, posts) {
-        state.paginatedPosts = posts
+        state.paginatedPosts = {...posts}
     },
     insertComment(state, data) {
         state.paginatedPosts.data.forEach((item, idx) => {
