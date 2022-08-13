@@ -80,6 +80,10 @@
                 @submitComment="onSubmitComment"
                 @item-deleted="onCommentDeleted"
             ></comment-list>
+            <comments-pagination
+                :items="itemComments"
+                @loadPage="onLoadComments"
+            ></comments-pagination>
         </div>
     </div>
 </template>
@@ -99,6 +103,7 @@
         CommentList: () => import('vuejs-eblogger/components/widgets/Comment/CommentList'),
         ShareButton: () => import('vuejs-socializer/components/widgets/post/ShareButton'),
         CounterWidget: () => import('vuejs-eblogger/components/widgets/Comment/widgets/Counter'),
+        CommentsPagination: () => import('vuejs-estarter/components/widgets/Pagination'),
     },
     props: {
         post: {
