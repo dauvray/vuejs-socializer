@@ -1,7 +1,7 @@
 <template>
     <modal-widget
         v-if="showmodal"
-        target="networkParams"
+        target="roomParams"
         class="d-flex justify-content-end"
         modalClasses="modal-xl"
         btnclass="btn btn-link"
@@ -12,13 +12,13 @@
         @hide="onHideModal"
     >
         <template #header>
-            <i class="fas fa-cog"></i> Créer un salon
+            <i class="fas fa-cog"></i> Modifier un salon
         </template>
         <template #body>
             <questionnaire-component
                 ref="questionnaire"
                 :editable="false"
-                :questionnaireid="createRoomId"
+                :questionnaireid="updateRoomId"
                 :userid="me.id"
                 :isstandalone="true"
                 @deported-validation="onDeportedValidation"
@@ -27,11 +27,12 @@
     </modal-widget>
 </template>
 
-<script>
+<script >
+
     import {mapActions, mapGetters} from 'vuex'
 
     export default {
-        name: 'CreateRoomNetworkModal',
+        name: 'UpdateRoomNetworkModal',
         components: {
             ModalWidget: () => import('vuejs-estarter/components/widgets/Modal'),
         },
@@ -45,7 +46,7 @@
         data() {
             return {
                 canValidate: false,
-                createRoomId: parseInt(process.env.MIX_FORMDESIGNER_CREATE_ROOM_ID)
+                updateRoomId: parseInt(process.env.MIX_FORMDESIGNER_CREATE_ROOM_ID)
             }
         },
         computed: {
@@ -68,7 +69,3 @@
     }
 
 </script>
-
-<style>
-
-</style>

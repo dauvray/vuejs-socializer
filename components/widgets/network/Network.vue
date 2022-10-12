@@ -2,16 +2,33 @@
     <article v-if="network" class="network-container h-100">
         <div class="sidebar d-flex flex-column">
 
-          <!-- Network -->
-          <params-network-btn
-            :network="network"
-          ></params-network-btn>
+            <!-- Modals -->
+            <component
+                v-bind:is="currentModalComponent"
+                ref="modalComponent"
+                :showmodal="showModal"
+                @hide-modal="onHideModal"
+            ></component>
 
-          <!-- Salons -->
-          <div class="flex-grow-1">
-              Salons
+            <!-- Network -->
+            <params-network-btn
+                :network="network"
+                @show-modal="onShowModal"
+            ></params-network-btn>
+
+            <!-- Salons -->
+            <div class="flex-grow-1">
+                <div class="list-group">
+                    <params-room-btn
+                        v-for="(room, idx) in network.rooms"
+                        type="button"
+                        class="list-group-item list-group-item-action"
+                        :key="`room-button-${idx}`"
+                        :room="room"
+                        @show-modal="onShowModal"
+                    ></params-room-btn>
+                </div>
           </div>
-
 
           <!-- utilisateur -->
           <div>
@@ -46,11 +63,15 @@
 <script>
     import {mapActions, mapGetters} from 'vuex'
     import ParamsNetworkBtn from './widgets/ParamsNetworkBtn'
+    import ParamsRoomBtn from './widgets/ParamsRoomBtn'
 
     export default {
         name: "Network",
         components: {
           ParamsNetworkBtn,
+          ParamsRoomBtn,
+          CreateRoomNetworkModal: () => import('./modals/CreateRoomNetworkModal'),
+          UpdateRoomNetworkModal: () => import('./modals/UpdateRoomNetworkModal'),
         },
         props: {
             networkSlug: {
@@ -59,7 +80,11 @@
             }
         },
         data() {
-            return {}
+            return {
+                // modalManager
+                currentModalComponent: '',
+                showModal: false,
+            }
         },
          computed: {
             ...mapGetters({
@@ -70,12 +95,19 @@
         created() {
            let slug = this.networkSlug || this.$route.params.networkSlug
             this['networks/loadNetwork'](slug)
- 
+
         },
         methods: {
              ...mapActions([
                 'networks/loadNetwork'
             ]),
+            onHideModal() {
+                this.showModal = false
+            },
+            onShowModal(component) {
+                this.currentModalComponent = component,
+                this.showModal = true
+            },
         }
     }
 </script>
@@ -88,8 +120,8 @@
         grid-template-columns: 10rem 1fr;
         grid-template-rows: auto;
 
-        grid-template-areas: 
-        'sidebar network';       
+        grid-template-areas:
+        'sidebar network';
       }
 
 
