@@ -1,11 +1,17 @@
 import {RestDataSourcesMixin} from 'vuejs-estarter/mixins/RestDataSourcesMixin'
 
 export default {
-    setNetwork({commit}, network) {
-        commit('setNetwork', network)
+    loadNetwork({commit}, slug) {
+        RestDataSourcesMixin.methods.requestApi(`/get-network/${slug}`)
+        .then(resp => {
+            commit('setNetwork', resp)
+        })
     },
-    setNetworks({commit}, networks) {
-        commit('setNetworks', networks)
+    loadNetworks({commit}, url) {
+        RestDataSourcesMixin.methods.requestApi(url)
+        .then(resp => {
+            commit('setNetworks', resp)
+        })
     },
     followNetwork({commit}, networkSlug) {
         RestDataSourcesMixin.methods.requestApi(`/follow-network/${networkSlug}`)

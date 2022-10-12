@@ -3,7 +3,7 @@ export default {
         return state.network
     },
     getNetworks(state) {
-        return state.paginatedNetworks.data
+        return state.paginatedNetworks
     },
     getMyNetworks(state, getters, rootState, rootGetters) {
         return rootGetters['me/getMe'].networks || []

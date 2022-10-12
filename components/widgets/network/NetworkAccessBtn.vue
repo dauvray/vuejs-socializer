@@ -1,9 +1,10 @@
 <template>
     <div v-if="network && !haveSendedRequest">
-        <a v-if="isAllowed"
-           :href="network.link"
-           class="btn btn-primary"
-        ><i class="las la-door-open"></i> Visiter</a>
+        <button v-if="isAllowed"
+            type="button"
+            class="btn btn-primary"
+            @click="onLoadNetwork"
+        ><i class="las la-door-open"></i> Visiter</button>
         <button v-else
                 type="button"
                 class="btn btn-primary"
@@ -60,6 +61,9 @@
                 .then(() => {
                     this.sendedRequest = true
                 })
+            },
+            onLoadNetwork() {
+                this.$router.push({ name: `network`, params: { networkSlug: this.network.slug } })
             }
         }
     }
