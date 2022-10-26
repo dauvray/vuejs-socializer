@@ -54,8 +54,13 @@
             }),
         },
         methods: {
+            ...mapActions([
+                'networks/addRoom'
+            ]),
             onSaveModalChanges() {
-                this.$refs.questionnaire.onValidQuestionnaire()
+                this.$refs.questionnaire.onValidQuestionnaire((response) => {
+                    this['networks/addRoom'](response)
+                })
             },
             onHideModal() {
                this.$emit('hide-modal')

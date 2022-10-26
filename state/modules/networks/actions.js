@@ -1,6 +1,12 @@
 import {RestDataSourcesMixin} from 'vuejs-estarter/mixins/RestDataSourcesMixin'
 
 export default {
+
+    /*
+    |------------------------------------
+    | NETWORKS
+    |------------------------------------
+    */
     loadNetwork({commit}, slug) {
         RestDataSourcesMixin.methods.requestApi(`/get-network/${slug}`)
         .then(resp => {
@@ -80,5 +86,32 @@ export default {
                 msg: 'Demande refusée'
             }
         )
+    },
+
+    /*
+    |------------------------------------
+    | ROOMS
+    |------------------------------------
+    */
+
+    updateRoom({commit}, payload) {
+        commit('updateRoom', payload)
+    },
+    addRoom({commit}, payload) {
+        commit('addRoom', payload)
+    },
+    deleteRoom({commit}, roomId) {
+        RestDataSourcesMixin.methods.requestApi(
+            `/delete-room/${roomId}`,
+            'get',
+            null,
+            {
+                err: 'Impossible de supprimer le salon',
+                msg: 'Salon supprimé'
+            }
+        )
+        .then(() => {
+            commit('deleteRoom', roomId)
+        })
     }
 }

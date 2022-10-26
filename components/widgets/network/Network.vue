@@ -7,16 +7,18 @@
                 v-bind:is="currentModalComponent"
                 ref="modalComponent"
                 :showmodal="showModal"
+                :payload="payload"
                 @hide-modal="onHideModal"
             ></component>
 
             <!-- Network -->
             <params-network-btn
+                class="pb-3"
                 :network="network"
                 @show-modal="onShowModal"
             ></params-network-btn>
 
-            <!-- Salons -->
+            <!-- Rooms -->
             <div class="flex-grow-1">
                 <div class="list-group">
                     <params-room-btn
@@ -84,6 +86,7 @@
                 // modalManager
                 currentModalComponent: '',
                 showModal: false,
+                payload: {},
             }
         },
          computed: {
@@ -104,8 +107,9 @@
             onHideModal() {
                 this.showModal = false
             },
-            onShowModal(component) {
+            onShowModal(component, payload) {
                 this.currentModalComponent = component,
+                this.payload = {...payload}
                 this.showModal = true
             },
         }
@@ -113,35 +117,26 @@
 </script>
 
 <style lang="scss" scoped>
+
       .network-container {
         display: grid;
-        gap: 5px;
-
-        grid-template-columns: 10rem 1fr;
+        gap: 15px;
+        grid-template-columns: 20rem 1fr;
         grid-template-rows: auto;
-
-        grid-template-areas:
-        'sidebar network';
-      }
-
-
-      .network {
-        grid-area: network;
+        grid-template-areas: 'sidebar network';
       }
 
       .sidebar {
         grid-area: sidebar;
       }
 
-
-      /* network */
       .network {
         display: grid;
         gap: 5px;
+        grid-area: network;
         grid-template-columns: 1fr 10rem;
         grid-template-rows: 5rem 1fr 5rem;
       }
-
 
       .header {
         grid-column-start:1;
