@@ -25,9 +25,11 @@
                         v-for="(room, idx) in network.rooms"
                         type="button"
                         class="list-group-item list-group-item-action"
+                        :class="{active: isRoomActive(room.id)}"
                         :key="`room-button-${idx}`"
                         :room="room"
                         @show-modal="onShowModal"
+                        @load-room="onLoadRoom"
                     ></params-room-btn>
                 </div>
           </div>
@@ -45,8 +47,7 @@
           Header
         </div>
         <div class="content">
-          content
-
+            <router-view></router-view>
         </div>
         <div class="rightbar">
 
@@ -74,6 +75,7 @@
           ParamsRoomBtn,
           CreateRoomNetworkModal: () => import('./modals/CreateRoomNetworkModal'),
           UpdateRoomNetworkModal: () => import('./modals/UpdateRoomNetworkModal'),
+          RoomComponent: () => import('./rooms/Room'),
         },
         props: {
             networkSlug: {
@@ -83,7 +85,6 @@
         },
         data() {
             return {
-                // modalManager
                 currentModalComponent: '',
                 showModal: false,
                 payload: {},
@@ -91,8 +92,8 @@
         },
          computed: {
             ...mapGetters({
-                network: 'networks/getNetwork'
-               // me: 'me/getMe'
+                network: 'networks/getNetwork',
+                currentRoom: 'networks/getRoom',
             }),
         },
         created() {
@@ -102,7 +103,8 @@
         },
         methods: {
              ...mapActions([
-                'networks/loadNetwork'
+                'networks/loadNetwork',
+                'networks/loadRoom'
             ]),
             onHideModal() {
                 this.showModal = false
@@ -112,6 +114,19 @@
                 this.payload = {...payload}
                 this.showModal = true
             },
+            onLoadRoom(roomId) {
+                this['networks/loadRoom'](roomId)
+                .then(() => {
+                    this.$router.push({ name: `room`, params: { roomId: roomId } })
+                })
+            },
+            isRoomActive(roomId) {
+                if(this.currentRoom) {
+                    return roomId == this.currentRoom.id
+                }
+
+                return false
+            }
         }
     }
 </script>

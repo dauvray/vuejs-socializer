@@ -4,14 +4,12 @@
             <author-widget
                 :author="post.sharer"
                 size="small"
-                :profileurl="profileurl"
             ></author-widget> à partagé cette publication
         </div>
         <div class="card-header align-items-start">
             <author-widget
                 :author="post.author"
                 size="small"
-                :profileurl="profileurl"
             ></author-widget>
             <date-helper
                 :date="post.created_at"
@@ -76,11 +74,11 @@
                 :postdislikeurl="postdislikeurl"
                 :postlikeurl="postlikeurl"
                 :postreporturl="postreporturl"
-                :profileurl="profileurl"
                 @submitComment="onSubmitComment"
                 @item-deleted="onCommentDeleted"
             ></comment-list>
             <comments-pagination
+                v-if="itemComments"
                 :items="itemComments"
                 @loadPage="onLoadComments"
             ></comments-pagination>

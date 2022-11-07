@@ -15,6 +15,7 @@ export default () => {
             to: null,
             total: null,
         },
-        network: null
+        network: null,
+        room: null,
     }
 }

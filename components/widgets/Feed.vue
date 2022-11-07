@@ -3,12 +3,12 @@
         <div class="card">
             <div class="card-body">
                 <post-modal
-                    :item="user"
+                    :item="item"
                     :type="type"
                     @publish-post="onPublishPost"
                 ></post-modal>
                 <div class="feed-wrapper">
-                    <post-card v-for="(post, idx) in items.data"
+                    <post-card v-for="(post, idx) in posts.data"
                         :key="componentKey + idx"
                         :post="post"
                         :logged="logged"
@@ -19,7 +19,6 @@
                         :canbedeleted="canbedeleted"
                         :postdislikeurl="postdislikeurl"
                         :postlikeurl="postlikeurl"
-                        :profileurl="profileurl"
                         :postreporturl="postreporturl"
                         :postcommenturl="postcommenturl"
                         @submitComment="onSubmitComment"
@@ -28,7 +27,7 @@
                         @post-shared="onPostShared"
                     ></post-card>
                     <post-pagination
-                        :items="items"
+                        :items="posts"
                         @loadPage="onLoadPosts"
                     ></post-pagination>
                 </div>
@@ -47,50 +46,72 @@ export default {
         PostModal: () => import('vuejs-socializer/components/widgets/post/PostModal'),
         PostCard: () => import('vuejs-socializer/components/widgets/post/PostCard'),
         PostPagination: () => import('vuejs-estarter/components/widgets/Pagination'),
+        OffCanvas: () => import('vuejs-estarter/components/widgets/Offcanvas')
     },
     props: {
-        user: {
+        item: {
             type: Object,
             required: true
         },
-        type: {
-          type: String,
-          required: true,
-        },
-        feed: {
-            type: [Array, Object],
+        feedId: {
+            type: [Number, String],
             required: true
         },
-        logged: {
-            type: Boolean,
-            default: false
+        type: { // to define post request
+            type: String,
+            required: false,
+            default: 'feed'
         },
         canbecommented: {
             type: Boolean,
-            default: false
+            required: false,
+            default: true
         },
         canberated: {
             type: Boolean,
+            required: false,
             default: false
         },
         canbeliked: {
             type: Boolean,
-            default: false
+            required: false,
+            default: true
         },
         canbedeleted: {
             type: Boolean,
-            default: false
+            required: false,
+            default: true
         },
         canbereported: {
             type: Boolean,
-            default: false
+            required: false,
+            default: true
         },
-        postlikeurl: String,
-        postdislikeurl: String,
-        postreporturl: String,
-        postcommenturl: String,
-        postpublishurl: String,
-        profileurl: String,
+        postpublishurl: {
+            type: String,
+            required: false,
+            default: '/publish-post',
+        },
+        postcommenturl: {
+            type: String,
+            required: false,
+            default: '/send-comment'
+        },
+        postlikeurl: {
+            type: String,
+            required: false,
+            default: '/content-like'
+        },
+        postdislikeurl: {
+            type: String,
+            required: false,
+            default: '/content-dislike'
+        },
+        postreporturl: {
+            type: String,
+            required: false,
+            default: '/content-report'
+        },
     },
     data() {
       return {
@@ -99,38 +120,61 @@ export default {
     },
     computed: {
         ...mapGetters({
-            items: 'posts/getPosts',
+            posts: 'posts/getPosts',
+            logged: 'me/check',
+            networkId: 'networks/getNetworkId',
         }),
     },
     watch: {
-        feed: function (newValue, oldValue) {
-            this.setPostList(newValue)
-        },
-    },
-    created() {
-        this.setPostList(this.feed)
+        feedId: {
+            handler:  function (newFeedId, oldFeedId) {
+               this.onLoadPosts(`/load-feed/${newFeedId}`)
+            },
+            immediate: true
+        }
     },
     methods: {
         ...mapActions([
-            'posts/setPostList',
             'posts/loadPosts',
             'posts/deletePost',
             'posts/sharePost',
+
             'posts/publishPost',
+            'posts/publishOnFeed',
+
+
             'comments/sendComment',
             'comments/deleteComment',
         ]),
-        setPostList(feed) {
-            this['posts/setPostList'](feed)
-        },
         onLoadPosts(url) {
             this['posts/loadPosts'](url)
         },
         onPublishPost(data) {
-            this['posts/publishPost'](data)
-            .then(() => {
-                this.componentKey++
-            })
+
+            // TODO a finir
+            // pas clair , voir a uniformiser les publish
+            switch(this.type) {
+                case 'feed':
+                    this['posts/publishPost'](data)
+                    .then(() => {
+                        this.componentKey++
+                    })
+                    break
+                case 'room':
+                    this['posts/publishOnFeed']({
+                        ...data,
+                        item_id: this.feedId,
+                        network_id: this.networkId
+                    })
+                    .then(() => {
+                        this.componentKey++
+                    })
+                    break
+                default:
+                    this.$emit('publish-post', data)
+                    break
+            }
+
         },
         onPostDeleted(data) {
             this['posts/deletePost'](data)

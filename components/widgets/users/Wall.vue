@@ -17,10 +17,9 @@
         </section>
         <section class="col-md-9">
             <feed-widget
-                :feed="feed"
+                :feed-id="wall.feed.id"
                 :type="type"
-                :user="user"
-                :logged="logged"
+                :item="user"
                 :canbecommented="canbecommented"
                 :canberated="canberated"
                 :canbeliked="canbeliked"
@@ -32,13 +31,14 @@
                 :postlikeurl="postlikeurl"
                 :postdislikeurl="postdislikeurl"
                 :postreporturl="postreporturl"
+                @publish-post="onPublishPost"
             ></feed-widget>
         </section>
     </article>
 </template>
 
 <script>
-    import {mapGetters} from 'vuex'
+    import {mapActions, mapGetters} from 'vuex'
 
     export default {
         name: "Wall",
@@ -64,16 +64,21 @@
             },
             type: {
                 type: String,
-                required: true,
+                required: false,
+                default: 'wall'
             },
-            feed: {
+/*             feed: {
                 type: [Array, Object],
                 required: true
+            }, */
+            wall: {
+                type: Object,
+                required: true,
             },
-            logged: {
+/*             logged: {
                 type: Boolean,
                 default: false
-            },
+            }, */
             webrtc: {
                 type: Boolean,
                 required: false,
@@ -81,7 +86,7 @@
             },
             canbecommented: {
                 type: Boolean,
-                default: false
+                default: true
             },
             canberated: {
                 type: Boolean,
@@ -89,22 +94,26 @@
             },
             canbeliked: {
                 type: Boolean,
-                default: false
+                default: true
             },
             canbedeleted: {
                 type: Boolean,
-                default: false
+                default: true
             },
             canbereported: {
                 type: Boolean,
-                default: false
+                default: true
             },
             postlikeurl: String,
             postdislikeurl: String,
             postreporturl: String,
             postcommenturl: String,
             postpublishurl: String,
-            profileurl: String,
+            profileurl: {
+                type: String,
+                required: false,
+                default: 'profil'
+            },
         },
         data() {
             return {}
@@ -115,6 +124,17 @@
             }),
             isEditable: function() {
                 return this.me.id === this.user.id
+            }
+        },
+        methods: {
+            ...mapActions([
+                'posts/publishWallPost'
+            ]),
+            onPublishPost(data) {
+                this['posts/publishWallPost'](data)
+                .then(() => {
+                   //
+                })
             }
         }
     }

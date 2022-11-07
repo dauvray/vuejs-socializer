@@ -1,5 +1,5 @@
 <template>
-   <article>
+   <article  @click="onLoadRoom">
         <div class="d-flex justify-content-between">
             <span>
                 <params-room-icon :room="room"></params-room-icon>
@@ -30,6 +30,9 @@
             onUpdateRoomModal() {
                 this.$emit('show-modal', 'update-room-network-modal', {room_id: this.room.id})
             },
+            onLoadRoom() {
+                this.$emit('load-room', this.room.id)
+            }
         }
     }
 </script>

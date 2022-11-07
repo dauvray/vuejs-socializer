@@ -27,8 +27,8 @@ export default {
             }
         });
     },
-    addRoom(state, payload) {
-        state.network.rooms.push(payload)
+    addRoom(state, room) {
+        state.network.rooms.push(room)
     },
     deleteRoom(state, roomId) {
         state.network.rooms.forEach((room, idx) => {
@@ -36,5 +36,8 @@ export default {
                 state.network.rooms.splice(idx, 1);
             }
         });
+    },
+    setRoom(state, room) {
+        state.room = {...room}
     }
 }

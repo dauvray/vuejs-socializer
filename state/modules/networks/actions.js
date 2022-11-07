@@ -113,5 +113,11 @@ export default {
         .then(() => {
             commit('deleteRoom', roomId)
         })
+    },
+    loadRoom({commit}, roomId) {
+        RestDataSourcesMixin.methods.requestApi(`/load-room/${roomId}`)
+        .then((resp) => {
+           commit('setRoom', resp)
+        })
     }
 }
