@@ -5,7 +5,7 @@
                 <option disabled selected value="">Qui peut voir votre post ?</option>
                 <option value="1">Tous le monde</option>
                 <option value="2">Relations uniquement</option>
-                <option v-if="type == 'wall'" value="3">Que nous deux</option>
+               <!--  <option v-if="type == 'wall'" value="3">Que nous deux</option> -->
             </select>
         </div>
         <div class="form-group">
@@ -22,10 +22,10 @@
     export default {
         name: "PostForm",
         props: {
-            type: {
+/*             type: {
                 type: String,
                 required: true,
-            }
+            } */
         },
         data() {
             return {

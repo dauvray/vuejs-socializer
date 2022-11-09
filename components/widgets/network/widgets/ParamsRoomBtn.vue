@@ -6,7 +6,7 @@
                 {{ room.name}}
                 <i v-if="room.private" class="las la-lock"></i>
             </span>
-            <i class="las la-cog" title="Modifier" @click="onUpdateRoomModal"></i>
+            <i class="las la-cog" title="Modifier" @click.stop="onUpdateRoomModal"></i>
         </div>
     </article>
 </template>

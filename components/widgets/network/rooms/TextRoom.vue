@@ -2,7 +2,6 @@
     <div>
         <h1>{{ room.name }}</h1>
         <feed-widget
-            :item="room"
             :feed-id="room.feed_id"
             type="room"
         ></feed-widget>

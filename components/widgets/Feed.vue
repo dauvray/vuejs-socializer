@@ -3,8 +3,6 @@
         <div class="card">
             <div class="card-body">
                 <post-modal
-                    :item="item"
-                    :type="type"
                     @publish-post="onPublishPost"
                 ></post-modal>
                 <div class="feed-wrapper">
@@ -46,13 +44,8 @@ export default {
         PostModal: () => import('vuejs-socializer/components/widgets/post/PostModal'),
         PostCard: () => import('vuejs-socializer/components/widgets/post/PostCard'),
         PostPagination: () => import('vuejs-estarter/components/widgets/Pagination'),
-        OffCanvas: () => import('vuejs-estarter/components/widgets/Offcanvas')
     },
     props: {
-        item: {
-            type: Object,
-            required: true
-        },
         feedId: {
             type: [Number, String],
             required: true
@@ -138,11 +131,7 @@ export default {
             'posts/loadPosts',
             'posts/deletePost',
             'posts/sharePost',
-
             'posts/publishPost',
-            'posts/publishOnFeed',
-
-
             'comments/sendComment',
             'comments/deleteComment',
         ]),
@@ -150,31 +139,14 @@ export default {
             this['posts/loadPosts'](url)
         },
         onPublishPost(data) {
-
-            // TODO a finir
-            // pas clair , voir a uniformiser les publish
-            switch(this.type) {
-                case 'feed':
-                    this['posts/publishPost'](data)
-                    .then(() => {
-                        this.componentKey++
-                    })
-                    break
-                case 'room':
-                    this['posts/publishOnFeed']({
-                        ...data,
-                        item_id: this.feedId,
-                        network_id: this.networkId
-                    })
-                    .then(() => {
-                        this.componentKey++
-                    })
-                    break
-                default:
-                    this.$emit('publish-post', data)
-                    break
-            }
-
+            this['posts/publishPost']( {
+                ...data,
+                feed_id: this.feedId,
+                type: this.type,
+            })
+            .then(() => {
+                this.componentKey++
+            })
         },
         onPostDeleted(data) {
             this['posts/deletePost'](data)

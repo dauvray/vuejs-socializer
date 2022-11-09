@@ -17,12 +17,11 @@
                 Créer un post
             </template>
             <template #body>
-                <author-widget
+<!--                 <author-widget
                     :author="item"
                     size="small"
-                ></author-widget>
+                ></author-widget> -->
                 <post-form
-                    :type="type"
                     @change-post-content="onChangePostContent"
                     @change-post-target="onChangePostTarget"
                 ></post-form>
@@ -46,14 +45,10 @@
             AuthorWidget: () => import('vuejs-estarter/components/widgets/Author'),
         },
         props: {
-            item: {
+/*             item: {
                 type: Object,
                 required: true,
-            },
-            type: {
-                type: String,
-                required: true,
-            }
+            }, */
         },
         data() {
           return {
@@ -79,8 +74,7 @@
                 this.$emit('publish-post', {
                     target: this.postTarget,
                     postContent: this.postContent,
-                    item_id: this.item.id,
-                    type: this.type
+                   // item_id: this.item.id,
                 })
                  this.resetAll()
             },

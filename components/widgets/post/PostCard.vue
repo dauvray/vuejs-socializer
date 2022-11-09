@@ -60,6 +60,7 @@
                 :parentid="post.id"
                 :logged="logged"
                 @submitComment="onSubmitComment"
+                @cancel-submit-comment="formvisible = false"
             ></comment-form>
             <comment-list
                 v-if="itemComments"

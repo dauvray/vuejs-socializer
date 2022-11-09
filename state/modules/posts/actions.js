@@ -6,18 +6,6 @@ export default {
         commit('setPostList', posts)
     },
     async publishPost({commit}, post) {
-/*         let url
-        switch(post.type) {
-            case 'feed':
-                url = '/publish-post'
-                break
-            case 'wall':
-                url = '/publish-user-wall-post'
-                break
-            case 'network':
-                url = '/publish-network-wall-post'
-                break
-        } */
         let response = await RestDataSourcesMixin.methods.requestApi(
             '/publish-post',
             'post',
@@ -29,33 +17,6 @@ export default {
             )
         commit('setPostList', response)
     },
-    async publishWallPost({commit}, post) {
-        let response = await RestDataSourcesMixin.methods.requestApi(
-            '/publish-user-wall-post',
-            'post',
-            post,
-            {
-                err: 'Publication impossible',
-                msg: 'Post publié'
-                }
-            )
-        commit('setPostList', response)
-    },
-    async publishOnFeed({commit}, post) {
-        let response = await RestDataSourcesMixin.methods.requestApi(
-            '/publish-on-feed',
-            'post',
-            post,
-            {
-                err: 'Publication impossible',
-                msg: 'Post publié'
-                }
-            )
-        commit('setPostList', response)
-    },
-
-
-
     async loadPosts({commit}, url) {
         // reset
         commit('setPostList', {...paginatedTemplate()})
